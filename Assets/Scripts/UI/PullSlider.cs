@@ -1,13 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
-using Button = UnityEngine.UI.Button;
 
 public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
 {
