@@ -37,8 +37,11 @@ namespace Utility
         
             fixPoint = new Vector2(Mathf.Clamp(screenPoint.x, minPoint.x + widthOffest, maxPoint.x - widthOffest),Mathf.Clamp(screenPoint.y, minPoint.y + heightOffest, maxPoint.y - heightOffest));
             return Mathf.Approximately(screenPoint.x, fixPoint.x) && Mathf.Approximately(screenPoint.y, fixPoint.y);
-
         }
+        
+        
+        
+        
     }
 
 }
