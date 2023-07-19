@@ -1,14 +1,17 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 
+namespace DebugSystem
+{
     public class TextConsoleSimulator : MonoBehaviour
     {
-#if DEBUG
         private TMP_Text _textComponent;
         private int _visibleCount;
         private int _totalVisibleCharacters;
         private Coroutine _revealCharactersCoroutine;
+
         private void Awake()
         {
             _textComponent = gameObject.GetComponent<TMP_Text>();
@@ -53,7 +56,7 @@ using TMPro;
             }
         }
 
-        
+
         /// <summary>
         /// 清屏操作
         /// </summary>
@@ -70,6 +73,6 @@ using TMPro;
         {
             _textComponent.text = _textComponent.text + $"\n{Text}";
         }
-        
-#endif
+
     }
+}

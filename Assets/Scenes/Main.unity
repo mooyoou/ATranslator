@@ -2222,42 +2222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'New Text 12313213 312321321 321312 3213123 13123 132131231313 13123 3213123
-    12312321321321312313131313 312313 1 21313
-
-    231
-
-
-
-    3
-
-    13
-
-    New
-    Text 12313213 312321321 321312 3213123 13123 132131231313 13123 3213123 12312321321321312313131313
-    312313 1 21313
-
-    231
-
-
-
-    3
-
-    13
-
-    New Text 12313213 312321321 321312
-    3213123 13123 132131231313 13123 3213123 12312321321321312313131313 312313 1
-    21313
-
-    231
-
-
-
-    3
-
-    13
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9236213790a1a4d408df0c10b77473e5, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: 9236213790a1a4d408df0c10b77473e5, type: 2}
@@ -2655,8 +2620,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1159635939}
   m_HandleRect: {fileID: 1159635938}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.64132303
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2835,7 +2800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
