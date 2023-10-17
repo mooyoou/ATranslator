@@ -1,4 +1,7 @@
+using System;
+using System.Runtime.InteropServices.ComTypes;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,11 +12,11 @@ namespace DebugSystem
         [Tooltip("控制台显示屏")] public TextConsoleSimulator console;
         [Tooltip("控制台滚动窗")] public ScrollRect consolescrollRect;
         [Tooltip("控制台输入器")] public TMP_InputField consoleInput;
-        private DebugFSM _debugFsm;
+        private DebugFsm _debugFsm;
 
         private void Awake()
         {
-            _debugFsm = gameObject.AddComponent<DebugFSM>();
+            _debugFsm = new DebugFsm(console);
 
         }
 
@@ -26,39 +29,17 @@ namespace DebugSystem
 
             console.AddText($"> {inputText}");
 
-            HandleSpecialCommand(inputText);
+            _debugFsm.ProcessInput(inputText);
 
             Refresh();
         }
 
-        /// <summary>
-        /// 处理特殊指令
-        /// </summary>
-        /// <param name="cmd"></param>
-        private void HandleSpecialCommand(string cmd)
+        private void Update()
         {
-            switch (cmd.ToLower())
-            {
-                case "cls":
-                    console.ClearScreen();
-                    break;
-                case "version":
-                    console.AddText($" {Application.productName} : {Application.version} ");
-                    break;
-                case "mnitor":
-                    _debugFsm.ChangeState(gameObject.AddComponent<MnitorState>());
-                    break;
-                case "exit":
-                    _debugFsm.ChangeState(new CommonState(console));
-                    break;
-                default:
-                    _debugFsm.ProcessInput(cmd);
-                    break;
-            }
-
-
+            _debugFsm.UpdateState();
         }
 
+        
         /// <summary>
         /// 屏幕刷新
         /// </summary>

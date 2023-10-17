@@ -1,28 +1,25 @@
 
+using System.Runtime.InteropServices.ComTypes;
+using DebugSystem;
 using UnityEngine;
 
-public abstract class StateMachine : MonoBehaviour,IStateMachine
+public abstract class StateMachine
 {
     protected IState CurrentState;
-
-    public StateMachine(IState state = null)
-    {
-        if (state != null)
-        {
-            CurrentState = state;
-            CurrentState.Enter();
-        }
-    }
 
     public virtual void ProcessInput(string input)
     {
         CurrentState.HandleInput(input);
     }
-
-    public virtual void ChangeState(IState newState)
+    
+    public virtual void SwitchToState(IState state)
     {
         CurrentState.Exit();
-        CurrentState = newState;
-        CurrentState.Enter();
+        
+        CurrentState = state;
+        state.Enter();
+        
     }
+    
+    
 }

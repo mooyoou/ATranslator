@@ -71,7 +71,7 @@ namespace DebugSystem
         /// </summary>
         public void AddText(string Text)
         {
-            _textComponent.text = _textComponent.text + $"\n{Text}";
+            _textComponent.text = _textComponent.text + $"{Text}\n";
         }
 
     }

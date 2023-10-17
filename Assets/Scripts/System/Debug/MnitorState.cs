@@ -4,47 +4,36 @@ using UnityEngine;
 
 namespace DebugSystem
 {
-    public class MnitorState : MonoBehaviour,IState
+    public class MnitorState :IState
     {
-        private TextConsoleSimulator _textConsoleSimulator;
-        private Coroutine mnitorCoroutine;
-        
-        public MnitorState(TextConsoleSimulator textConsoleSimulator)
+        private TextConsoleSimulator Console;
+        private DebugFsm DebugFsm;
+        public MnitorState(TextConsoleSimulator console,DebugFsm debugFsm)
         {
-            _textConsoleSimulator = textConsoleSimulator;
+            Console = console;
+            DebugFsm = debugFsm;
         }
+        
         public void Enter()
         {
-            _textConsoleSimulator.ClearScreen();
-            mnitorCoroutine = StartCoroutine(StartMnitorCoroutine());
-            
+            Console.AddText("调试模式已开启");
         }
 
         public void Exit()
         {
-            StopCoroutine(mnitorCoroutine);
+            Console.AddText("调试模式已退出");
         }
-
+        
         public void HandleInput(string input)
         {
-            switch (input)
-            {
-                default:
-                    _textConsoleSimulator.AddText("Invalid user command!");
-                    break;
-            }
 
         }
 
-        private IEnumerator StartMnitorCoroutine()
+        
+        public void Update()
         {
-            while (true)
-            {
-                _textConsoleSimulator.AddText(" Mnitor mode running!");
-                yield return new WaitForSeconds(1f); // 再等待3秒钟
-            }
         }
-
+        
 
     }
 }
