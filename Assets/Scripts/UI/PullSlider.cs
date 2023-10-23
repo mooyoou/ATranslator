@@ -1,6 +1,9 @@
 using System;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
@@ -13,6 +16,7 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
         Down,
     }
     public LayoutElement controlLayoutElement;
+    public CanvasScaler CanvasScaler;
     public PullType pullType;
     private Boolean _isDrag;
     private void Awake()
@@ -25,23 +29,25 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     {
         if (_isDrag)
         {
+            float scalingFactorX = (CanvasScaler ? 1920 :CanvasScaler.referenceResolution.x)/ Screen.width;
+            float scalingFactorY = (CanvasScaler ? 1080 :CanvasScaler.referenceResolution.y)/ Screen.height;
             switch (pullType)
             {
                 case PullType.Left:
-                    controlLayoutElement.preferredWidth =Input.mousePosition.x;
+                    controlLayoutElement.preferredWidth =Input.mousePosition.x*scalingFactorX;
                     controlLayoutElement.preferredHeight = -1;
                     break;
                 case PullType.Right:
-                    controlLayoutElement.preferredWidth = Screen.width-Input.mousePosition.x;
+                    controlLayoutElement.preferredWidth = Screen.width-Input.mousePosition.x*scalingFactorX;;
                     controlLayoutElement.preferredHeight = -1;
                     break;
                 case PullType.Up:
                     controlLayoutElement.preferredWidth = -1;
-                    controlLayoutElement.preferredHeight = Screen.height-Input.mousePosition.y;
+                    controlLayoutElement.preferredHeight = Screen.height-Input.mousePosition.y*scalingFactorY;;
                     break;
                 case PullType.Down:
                     controlLayoutElement.preferredWidth = -1;
-                    controlLayoutElement.preferredHeight =Input.mousePosition.y;
+                    controlLayoutElement.preferredHeight =Input.mousePosition.y*scalingFactorY;;
                     break;
                     
             }
