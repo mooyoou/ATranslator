@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Utility;
+using Object = System.Object;
 
 public class ExplorerNode
 {
@@ -89,9 +90,11 @@ public class ExplorerCtrl : MonoBehaviour
         if(string.IsNullOrEmpty(folderPath)) return;
         ResetNodeBtns();
         _rootExplorerNode = new ExplorerNode(folderPath,true,0,null);
-        GlobalSubscribeSys.Invoke("open_tips_window",new string[]
+        GlobalSubscribeSys.Invoke("open_tips_window",new Object[]
         {
-            "Project is opening..."
+            "Project is opening...",
+            $"{folderPath} Loading...",
+            true
         });
         StartCoroutine(InitNodesAsync(_rootExplorerNode));
         //InitNodes(_rootExplorerNode);
@@ -119,6 +122,7 @@ public class ExplorerCtrl : MonoBehaviour
         //开启等待蒙版
         _rootExplorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
         _rootExplorerNodeBtn.Init(_rootExplorerNode,explorerNodeP);
+         yield return new WaitForSeconds(1);
         GlobalSubscribeSys.Invoke("close_tips_window");
     }
     
