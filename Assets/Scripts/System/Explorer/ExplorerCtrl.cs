@@ -19,7 +19,7 @@ public class ExplorerNode
     public List<ExplorerNode> SubExplorerNodes=new List<ExplorerNode>();
     public ExplorerNode FatherExplorerNode;
     public FileInfo FileInfo;
-    
+
     public ExplorerNode(string fullPath,bool isFolder, int depth = 0,ExplorerNode fnode = null)
     {
         if (!Directory.Exists(fullPath) && !File.Exists(fullPath))
@@ -67,6 +67,9 @@ public class ExplorerCtrl : MonoBehaviour
     
     private ExplorerNodeBtn _rootExplorerNodeBtn;
     private ExplorerNode _rootExplorerNode;
+    private int _tipId;
+        
+    private Coroutine _initNodesCoroutine;
     private void Awake()
     {
         RegisterEvent();
@@ -78,7 +81,11 @@ public class ExplorerCtrl : MonoBehaviour
         {
             OpenNewProject();
         });
-
+        GlobalSubscribeSys.Subscribe("cancel_explorer_init", (objects) =>
+        {
+            StopCoroutine(_initNodesCoroutine);
+            ResetNodeBtns();
+        });
     }
     
     /// <summary>
@@ -88,18 +95,19 @@ public class ExplorerCtrl : MonoBehaviour
     {
         string folderPath = Misc.OpenFolderBrowserDialog(_rootExplorerNodeBtn!=null?_rootExplorerNode.FullPath:null);
         if(string.IsNullOrEmpty(folderPath)) return;
-        ResetNodeBtns();
-        _rootExplorerNode = new ExplorerNode(folderPath,true,0,null);
-        GlobalSubscribeSys.Invoke("open_tips_window",new Object[]
+        
+        GlobalSubscribeSys.Invoke("open_tips_window",out List<object> ids,new Object[]
         {
-            "Project is opening...",
+            "Project is opening",
             $"{folderPath} Loading...",
-            true
+            true,
+            "cancel_explorer_init"
         });
-        StartCoroutine(InitNodesAsync(_rootExplorerNode));
-        //InitNodes(_rootExplorerNode);
-    }
+        _tipId = ids[0] as int? ?? 0;
 
+        _initNodesCoroutine = StartCoroutine(InitNodesAsync(folderPath));
+    }
+    
     private void ResetNodeBtns()
     {
         if (_rootExplorerNodeBtn!=null)
@@ -109,21 +117,15 @@ public class ExplorerCtrl : MonoBehaviour
         }
     }
 
-    private void InitNodes(ExplorerNode _rootExplorerNode)
+    private IEnumerator InitNodesAsync(string rootPath)
     {
-        if (_rootExplorerNode == null)return;
-        _rootExplorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
-        _rootExplorerNodeBtn.Init(_rootExplorerNode,explorerNodeP);
-    }
-    
-    private IEnumerator InitNodesAsync(ExplorerNode _rootExplorerNode)
-    {
+        ResetNodeBtns();
+        _rootExplorerNode = new ExplorerNode(rootPath,true,0,null);
         if (_rootExplorerNode == null)yield break;
-        //开启等待蒙版
         _rootExplorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
         _rootExplorerNodeBtn.Init(_rootExplorerNode,explorerNodeP);
          yield return new WaitForSeconds(1);
-        GlobalSubscribeSys.Invoke("close_tips_window");
+        GlobalSubscribeSys.Invoke("close_tips_window",_tipId);
     }
     
 

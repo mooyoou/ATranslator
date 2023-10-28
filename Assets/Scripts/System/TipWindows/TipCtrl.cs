@@ -1,34 +1,24 @@
-using System.Diagnostics.Tracing;
-using System.Security.AccessControl;
-using TMPro;
-using UnityEditor;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace System.TipWindows
 {
     public class TipCtrl : MonoBehaviour
     {
-        [SerializeField] private Image mask;
-        [SerializeField] private Animation maskAni;
-        [SerializeField] private TMP_Text tipTitle;
-        [SerializeField] private TMP_Text tipInfo;
-        [SerializeField] private Image progressFill;
-        [SerializeField] private Animation progressRun;
-        [SerializeField] private Button cancelBtn;
-        
-        private string _cancelEvent;
+        [SerializeField] private TipForm _tipFormP;
+
+        private Dictionary<int, TipForm> tips = new Dictionary<int, TipForm>();
+
         private void Awake()
         {
             RegisterEvent();
-            ResetTip();
         }
 
         private void RegisterEvent()
         {
             GlobalSubscribeSys.Subscribe("open_tips_window", (objects) =>
             {
+                int id = 0;
                 try
                 {
                     string title="";
@@ -41,20 +31,13 @@ namespace System.TipWindows
                         title = objects[0] as string;
                         info = objects[1] as string;
                         needMask = objects[2] as bool? ?? false;
-
-                        if (objects.Length >= 4)
-                        {
-                            cancleEvent = objects[3] as string;
-                        }
-
-                        if (objects.Length >= 5)
-                        {
-                            percent = objects[4] as float? ?? -1;
-                        }
-
-
-                        InvokeTipWindows(title,info, needMask,cancleEvent,percent);
+                        if (objects.Length >= 4) cancleEvent = objects[3] as string;
+                        if (objects.Length >= 5) percent = objects[4] as float? ?? -1;
                         
+                        id = GetRandomId();
+                        TipForm tipForm = Instantiate(_tipFormP, transform);
+                        tips.Add(id,tipForm);
+                        tipForm.Init(id,this,title,info,needMask,cancleEvent,percent);
                     }
                 }
                 catch (Exception e)
@@ -66,104 +49,81 @@ namespace System.TipWindows
                     }
                     Debug.LogError($"Event\"open_tips_window\" invoked failed with parents : {_parents}");
                 }
+                return id;
             });
 
             GlobalSubscribeSys.Subscribe("close_tips_window",(objects)=>
             {
-                ResetTip();
+                if (objects.Length > 0)
+                {
+                    TipClose(objects[0] as int? ?? 0);
+                }
+                
             });
             
             GlobalSubscribeSys.Subscribe("update_tip_info",(objects)=>
             {
+                int tipId=0;
                 string tiptitle = "";
                 string tipinfo = "";
                 float fill = -1;
-                if (objects.Length >= 1)
-                {
-                    tiptitle= objects[0] as string;
-                }else if (objects.Length >= 2)
-                {
-                    tipinfo= objects[1] as string;
-                }else if (objects.Length >= 3)
-                {
-                    fill = objects[1] as float? ?? -1;
-                }
-                UpdateTipInfo(tiptitle,tipinfo,fill);
+                if (objects.Length >= 1) tipId= objects[0] as int? ?? 0;
+                if (objects.Length >= 2) tiptitle= objects[1] as string;
+                if (objects.Length >= 3) tipinfo= objects[2] as string;
+                if (objects.Length >= 4) fill = objects[3] as float? ?? -1;
+                UpdateTip(tipId,tiptitle,tipinfo,fill);
             });
             
         }
 
-        private void InvokeTipWindows(string title,string info,bool needMask,string cancelEvent="",float percent = -1)
+        internal void TipCancle(int id)
         {
-            gameObject.SetActive(true);
-            tipTitle.text = title;
-            tipInfo.text = info;
-            if (string.IsNullOrEmpty(cancelEvent))
+            if (tips.TryGetValue(id,out TipForm tipForm))
             {
-                cancelBtn.interactable = false;
-            }
-            else
-            {
-                cancelBtn.interactable = true;
-                _cancelEvent = cancelEvent;
-            }
-            
-            mask.gameObject.SetActive(needMask);
-            if (needMask)
-            {
-                maskAni.Play();
-            }
-
-            if (percent >= 0)
-            {
-                progressFill.gameObject.SetActive(true);
-                progressRun.gameObject.SetActive(false);
-                progressFill.fillAmount = percent;
-            }
-            else
-            {
-                progressFill.gameObject.SetActive(false);
-                progressRun.gameObject.SetActive(true);
-                progressRun.Play();
-            }
-            
-        }
-
-        private void UpdateTipInfo(string tiptitle, string tipinfo = "",float fill = -1)
-        {
-            if (!string.IsNullOrEmpty(tiptitle)) tipTitle.text = tiptitle;
-            if (!string.IsNullOrEmpty(tiptitle)) tipInfo.text = tipinfo;
-            if (fill >= 0)
-            {
-                progressFill.gameObject.SetActive(true);
-                progressRun.gameObject.SetActive(false);
-                progressFill.fillAmount = fill;
+                if(!string.IsNullOrEmpty(tipForm.CancelEvent)) GlobalSubscribeSys.Invoke(tipForm.CancelEvent);
+                Destroy(tipForm.gameObject);
+                tips.Remove(id);
             }
         }
 
-
-        public void OnCancelClick()
+        internal void TipClose(int id)
         {
-            if (!string.IsNullOrEmpty(_cancelEvent))
+            if (tips.TryGetValue(id,out TipForm tipForm))
             {
-                GlobalSubscribeSys.Invoke(_cancelEvent);
+                Destroy(tipForm.gameObject);
+                tips.Remove(id);
             }
-
-            ResetTip();
-        }
-
-        public void OnTipDrag(BaseEventData eventData)
-        {
-            PointerEventData pointerEventData = eventData as PointerEventData;
-
         }
         
-        private void ResetTip()
+        internal void UpdateTip(int id,string tipTitle,string tipinfo,float fill)
         {
-            gameObject.SetActive(false);
-            tipTitle.text = "";
-            tipInfo.text = "";
+            if (tips.TryGetValue(id,out TipForm tipForm))
+            {
+                tipForm.UpdateTipInfo(tipTitle, tipinfo, fill);
+            }
         }
+        
+        private int GetRandomId()
+        {
+            int seed = Environment.TickCount;
+            UnityEngine.Random.InitState(seed);
+            int id = UnityEngine.Random.Range(0, 1000);
+            while (tips.ContainsKey(id))
+            {
+                seed = Environment.TickCount;
+                UnityEngine.Random.InitState(seed);
+                id = UnityEngine.Random.Range(0, 1000);
+            }
+
+            return id;
+        } 
+
+        
+
+
+
+
+
 
     }
 }

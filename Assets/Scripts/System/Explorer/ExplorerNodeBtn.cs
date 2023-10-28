@@ -46,9 +46,6 @@ namespace System.Explorer
                 fileIcon.sprite = explorerIcons.GetSprite("file");
                 extraBtn.gameObject.SetActive(false);
             }
-            
-            
-            
         }
         /// <summary>
         /// 展开按钮点击
