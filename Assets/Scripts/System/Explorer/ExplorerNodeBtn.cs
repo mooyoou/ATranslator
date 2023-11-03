@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -20,6 +21,8 @@ namespace System.Explorer
         private HorizontalLayoutGroup horizontalLayoutGroup;
         [SerializeField]
         private Transform subNodeRoot;
+        
+        
         internal ExplorerNode ExplorerNode;
 
         private bool _isSubNodeGen;
@@ -68,13 +71,13 @@ namespace System.Explorer
                     extraBtn.transform.rotation=Quaternion.Euler(0,0,-90);
                     if (!_isSubNodeGen)
                     {
-                        foreach (var node in ExplorerNode.SubExplorerNodes)
+                        for(int i=0;i<ExplorerNode.SubExplorerNodes.Count;i++)
                         {
                             ExplorerNodeBtn explorerNodeBtn = Instantiate(_explorerNodeBtnP, subNodeRoot);
-                            explorerNodeBtn.Init(node,_explorerNodeBtnP);
+                            explorerNodeBtn.Init(ExplorerNode.SubExplorerNodes[i], _explorerNodeBtnP);
                             _explorerNodeBtns.Add(explorerNodeBtn);
                         }
-
+                        
                         _isSubNodeGen = true;
                     }
                     else
