@@ -20,7 +20,7 @@ namespace System.Explorer
         private HorizontalLayoutGroup horizontalLayoutGroup;
         [SerializeField]
         private Transform subNodeRoot;
-        private ExplorerNode _explorerNode;
+        internal ExplorerNode ExplorerNode;
 
         private bool _isSubNodeGen;
 
@@ -32,11 +32,11 @@ namespace System.Explorer
 
         internal void Init(ExplorerNode explorerNode,ExplorerNodeBtn explorerNodeP)
         {
-            _explorerNode = explorerNode;
+            ExplorerNode = explorerNode;
             _explorerNodeBtnP = explorerNodeP;
-            tmpText.text = _explorerNode.FileName;
+            tmpText.text = ExplorerNode.FileName;
             horizontalLayoutGroup.padding.left = explorerNode.Depth * 25;
-            if (_explorerNode.IsFolder)
+            if (ExplorerNode.IsFolder)
             {
                 extraBtn.gameObject.SetActive(true);
                 fileIcon.sprite = explorerIcons.GetSprite("folder");
@@ -52,7 +52,7 @@ namespace System.Explorer
         /// </summary>
         public void OnExpandClick()
         {
-            if (_explorerNode.IsFolder)
+            if (ExplorerNode.IsFolder)
             {
                 //状态处理
                 if (_isExpand)
@@ -68,7 +68,7 @@ namespace System.Explorer
                     extraBtn.transform.rotation=Quaternion.Euler(0,0,-90);
                     if (!_isSubNodeGen)
                     {
-                        foreach (var node in _explorerNode.SubExplorerNodes)
+                        foreach (var node in ExplorerNode.SubExplorerNodes)
                         {
                             ExplorerNodeBtn explorerNodeBtn = Instantiate(_explorerNodeBtnP, subNodeRoot);
                             explorerNodeBtn.Init(node,_explorerNodeBtnP);
@@ -93,6 +93,11 @@ namespace System.Explorer
         public void OnNodeClick()
         {
 
+        }
+
+        public List<ExplorerNodeBtn> GetSubExplorerNodeBtns()
+        {
+            return _explorerNodeBtns;
         }
 
     }

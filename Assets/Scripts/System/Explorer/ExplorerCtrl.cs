@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Explorer;
 using System.IO;
-using Unity.VisualScripting;
-using UnityEditor;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using Utility;
-using Object = System.Object;
+
 
 public class ExplorerNode
 {
@@ -49,7 +49,11 @@ public class ExplorerNode
         string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
         foreach (string subdirectory in subdirectoryEntries)
         {
-            SubExplorerNodes.Add(new ExplorerNode(subdirectory,true,Depth+1,this));
+            Task.Run(() =>
+            {
+                SubExplorerNodes.Add(new ExplorerNode(subdirectory,true,Depth+1,this));
+            });
+
         }
         foreach (string fileEntry in fileEntries)
         {
@@ -64,8 +68,11 @@ public class ExplorerCtrl : MonoBehaviour
     private Transform explorerNodeRoot;
     [SerializeField] 
     private ExplorerNodeBtn explorerNodeP;
+    [SerializeField] 
+    private ScrollRect scrollRect;
     
     private ExplorerNodeBtn _rootExplorerNodeBtn;
+    private ExplorerNodeBtn _oldRootExplorerNodeBtn;
     private ExplorerNode _rootExplorerNode;
     private int _tipId;
         
@@ -84,7 +91,12 @@ public class ExplorerCtrl : MonoBehaviour
         GlobalSubscribeSys.Subscribe("cancel_explorer_init", (objects) =>
         {
             StopCoroutine(_initNodesCoroutine);
-            ResetNodeBtns();
+            if (_oldRootExplorerNodeBtn != null && _oldRootExplorerNodeBtn != _rootExplorerNodeBtn)
+            {
+                Destroy(_rootExplorerNodeBtn.gameObject);
+                _rootExplorerNodeBtn = _oldRootExplorerNodeBtn;
+            }
+
         });
     }
     
@@ -96,7 +108,7 @@ public class ExplorerCtrl : MonoBehaviour
         string folderPath = Misc.OpenFolderBrowserDialog(_rootExplorerNodeBtn!=null?_rootExplorerNode.FullPath:null);
         if(string.IsNullOrEmpty(folderPath)) return;
         
-        GlobalSubscribeSys.Invoke("open_tips_window",out List<object> ids,new Object[]
+        GlobalSubscribeSys.Invoke("open_tips_window",out List<object> ids,new System.Object[]
         {
             "Project is opening",
             $"{folderPath} Loading...",
@@ -107,26 +119,55 @@ public class ExplorerCtrl : MonoBehaviour
 
         _initNodesCoroutine = StartCoroutine(InitNodesAsync(folderPath));
     }
-    
-    private void ResetNodeBtns()
-    {
-        if (_rootExplorerNodeBtn!=null)
-        {
-            Destroy(_rootExplorerNodeBtn.gameObject);
-            _rootExplorerNodeBtn = null;
-        }
-    }
 
     private IEnumerator InitNodesAsync(string rootPath)
     {
-        ResetNodeBtns();
+        //保底加载时间用于用户取消操作
+        yield return new WaitForSeconds(1);
+        _oldRootExplorerNodeBtn = _rootExplorerNodeBtn;
         _rootExplorerNode = new ExplorerNode(rootPath,true,0,null);
         if (_rootExplorerNode == null)yield break;
         _rootExplorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
         _rootExplorerNodeBtn.Init(_rootExplorerNode,explorerNodeP);
-         yield return new WaitForSeconds(1);
         GlobalSubscribeSys.Invoke("close_tips_window",_tipId);
+        if (_oldRootExplorerNodeBtn != null)
+        {
+            Destroy(_oldRootExplorerNodeBtn.gameObject);
+        }
+        _oldRootExplorerNodeBtn = null;
     }
-    
+
+    public void OnVerticalChange(Single value)
+    {
+        // var scrollRectTransform = scrollRect.transform;
+        // var position = scrollRectTransform.position;
+        // var lossyScale = scrollRectTransform.lossyScale;
+        // float scrollRectPosYMin = position.y - scrollRect.viewport.rect.height*lossyScale.y;
+        // float scrollRectPosYMax = position.y;
+        //
+        // Stack<ExplorerNodeBtn> checkBtnStack = new Stack<ExplorerNodeBtn>();
+        // checkBtnStack.Push(_rootExplorerNodeBtn);
+        // while (checkBtnStack.Count>0)
+        // {
+        //     ExplorerNodeBtn curNode = checkBtnStack.Pop();
+        //     // Debug.Log($"{curNode.ExplorerNode.FileName} {curNode.gameObject.transform.position}");
+        //     var curNodePosition = curNode.transform.position;
+        //     bool isVisible = (curNodePosition.y >= scrollRectPosYMin && curNodePosition.y <= scrollRectPosYMax);
+        //     if (isVisible)
+        //     {
+        //         
+        //         curNode.gameObject.SetActive(true);
+        //     }
+        //     else
+        //     {
+        //         curNode.gameObject.SetActive(false);
+        //     }
+        //
+        //     foreach (var explorerNodeBtn in curNode.GetSubExplorerNodeBtns())
+        //     {
+        //         checkBtnStack.Push(explorerNodeBtn);
+        //     }
+        // }
+    }
 
 }

@@ -47,7 +47,7 @@ namespace System.TipWindows
                     {
                         _parents += $"{VARIABLE.ToString()} ";
                     }
-                    Debug.LogError($"Event\"open_tips_window\" invoked failed with parents : {_parents}");
+                    Debug.LogError($"Event \"open_tips_window\" invoked failed : {_parents}:{e}");
                 }
                 return id;
             });

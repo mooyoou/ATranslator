@@ -8061,6 +8061,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   - {fileID: 11400000, guid: 0b35aa86958bf1f4db77d67848aecfde, type: 2}
   - {fileID: 11400000, guid: ce0e01eba31830f449f302637edd663d, type: 2}
+  - {fileID: 11400000, guid: 68f0a5ad62e264e41a9a783937284a23, type: 2}
+  - {fileID: 11400000, guid: 5e78bd0daeca9964682a9d206ab1cd8e, type: 2}
+  - {fileID: 11400000, guid: d806e37f5c191e645b81ad85c6f1b89b, type: 2}
+  - {fileID: 11400000, guid: 0a7b750c215ed844e9c82afe133cf682, type: 2}
+  - {fileID: 11400000, guid: c4c6084de06bc5c4bb7026f9d09372c1, type: 2}
+  - {fileID: 11400000, guid: 71283df9bf208504389b4ed347c1f113, type: 2}
+  - {fileID: 11400000, guid: e1c35278fe95d3b4eb4f5605f1e96737, type: 2}
+  - {fileID: 11400000, guid: 85265743dbf94d04baa29f6b8614bbf5, type: 2}
   m_CreationSettings:
     sourceFontFileName: 
     sourceFontFileGUID: e3265ab4bf004d28a9537516768c1c75
