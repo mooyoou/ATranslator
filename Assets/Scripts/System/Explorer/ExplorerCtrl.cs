@@ -22,7 +22,6 @@ public class ExplorerNode
     public FileInfo FileInfo;
 
     public bool IsExpand;
-    
     public ExplorerNode(string fullPath,bool isFolder, int depth = 0,ExplorerNode fnode = null)
     {
         if (!Directory.Exists(fullPath) && !File.Exists(fullPath))
@@ -70,6 +69,17 @@ public class ExplorerCtrl : MonoBehaviour
     private ExplorerNodeBtn_fix explorerNodeP;
     [SerializeField] 
     private ExplorerScrollRect explorerScrollRect;
+    [SerializeField] 
+    private VerticalLayoutGroup verticalLayoutGroup;
+    
+    //列表对象池最大数量
+    private const int ScrollPoolMaxNum=40;
+    //当前显示节点数
+    private int _curShowNodeNum = 0;
+    //当前最大节点数
+    private int _curMaxNodeNum = 0;
+    //当前显示节点的前置节点数量
+    private int _curSkipNodeNum = 0;
     
     
     private ExplorerNode _rootExplorerNode;
@@ -92,19 +102,10 @@ public class ExplorerCtrl : MonoBehaviour
         GlobalSubscribeSys.Subscribe("cancel_explorer_init", (objects) =>
         {
             StopCoroutine(_initNodesCoroutine);
-            ClearOldNodeBtn();
         });
 
     }
     
-    
-    /// <summary>
-    /// 清除旧列表
-    /// </summary>
-    private void ClearOldNodeBtn()
-    {
-
-    }
     /// <summary>
     /// 顶部菜单栏-打开（新项目）
     /// </summary>
@@ -121,6 +122,9 @@ public class ExplorerCtrl : MonoBehaviour
 
     private  IEnumerator InitNodesAsync(string rootPath)
     {
+        // 自动计算适合对象池数量
+        // var prefabHight = ((RectTransform)explorerNodeP.transform).sizeDelta.y;
+        // ScrollPoolMaxNum = (int)((explorerScrollRect.viewRect.rect.size.y - verticalLayoutGroup.padding.bottom -verticalLayoutGroup.padding.top) / (prefabHight+verticalLayoutGroup.spacing))+5;
         Task InitTreeTask = Task.Run(() =>
         {
             _rootExplorerNode = new ExplorerNode(rootPath,true,0,null); //建立文件结构树
@@ -136,13 +140,26 @@ public class ExplorerCtrl : MonoBehaviour
     private void InitBtns(ExplorerNode rootNode)
     {
         explorerScrollRect.verticalScrollbar.value=0;
-        var explorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
-        explorerNodeBtn.Init(rootNode,this);
-        InitBtnList.Add(explorerNodeBtn);
+        if (InitBtnList.Count == 0)
+        {
+            var explorerNodeBtn = Instantiate(explorerNodeP, explorerNodeRoot);
+            explorerNodeBtn.Init(rootNode,this);
+            InitBtnList.Add(explorerNodeBtn);
+        }
+        else
+        {
+            InitBtnList[0].Init(rootNode,this);
+            InitBtnList[0].gameObject.SetActive(true);
+            for (int i = 1; i < InitBtnList.Count; i++)
+            {
+                InitBtnList[i].gameObject.SetActive(false);
+            }
+        }
     }
 
-    private void UpdateBtns()
+    private void UpdateBtns(int skipNum=0)
     {
+
         Stack<ExplorerNode> nodeStack = new Stack<ExplorerNode>();
         nodeStack.Push(_rootExplorerNode);
         int newNodeNum = 0;
@@ -160,9 +177,10 @@ public class ExplorerCtrl : MonoBehaviour
                 }
             }
             
-            if (false)
+            if (skipNum>0)
             {
-                //计算跳过的节点
+                skipNum--;
+                continue;
             }
             
             
@@ -173,7 +191,7 @@ public class ExplorerCtrl : MonoBehaviour
                 
             }
             else {
-                if (InitBtnList.Count > 50)
+                if (InitBtnList.Count > ScrollPoolMaxNum)
                 {
                     continue;
                 }
@@ -192,9 +210,11 @@ public class ExplorerCtrl : MonoBehaviour
                 InitBtnList[i].gameObject.SetActive(false);
             }
         }
-
+        
+        //显示范围大小计算
         explorerScrollRect.customVerticalSize = (float)newNodeNum / allNodeNum;
-
+        _curShowNodeNum = newNodeNum;
+        _curMaxNodeNum = allNodeNum;
     }
     
     public void ExpendBtn(ExplorerNode explorerNode)
@@ -234,38 +254,22 @@ public class ExplorerCtrl : MonoBehaviour
     }
 
 
-    
+    /// <summary>
+    /// 无限列表纵向拖动事件
+    /// </summary>
+    /// <param name="value">1 to 0</param>
     public void OnVerticalChange(Single value)
     {
-        // var scrollRectTransform = scrollRect.transform;
-        // var position = scrollRectTransform.position;
-        // var lossyScale = scrollRectTransform.lossyScale;
-        // float scrollRectPosYMin = position.y - scrollRect.viewport.rect.height*lossyScale.y;
-        // float scrollRectPosYMax = position.y;
-        //
-        // Stack<ExplorerNodeBtn> checkBtnStack = new Stack<ExplorerNodeBtn>();
-        // checkBtnStack.Push(_rootExplorerNodeBtn);
-        // while (checkBtnStack.Count>0)
-        // {
-        //     ExplorerNodeBtn curNode = checkBtnStack.Pop();
-        //     // Debug.Log($"{curNode.ExplorerNode.FileName} {curNode.gameObject.transform.position}");
-        //     var curNodePosition = curNode.transform.position;
-        //     bool isVisible = (curNodePosition.y >= scrollRectPosYMin && curNodePosition.y <= scrollRectPosYMax);
-        //     if (isVisible)
-        //     {
-        //         
-        //         curNode.gameObject.SetActive(true);
-        //     }
-        //     else
-        //     {
-        //         curNode.gameObject.SetActive(false);
-        //     }
-        //
-        //     foreach (var explorerNodeBtn in curNode.GetSubExplorerNodeBtns())
-        //     {
-        //         checkBtnStack.Push(explorerNodeBtn);
-        //     }
-        // }
+        
+        //前面未显示数量
+        int needSkipNumber =(int)((_curMaxNodeNum-_curShowNodeNum)*(1-value));
+        if (_curMaxNodeNum - needSkipNumber < _curShowNodeNum) needSkipNumber = _curMaxNodeNum - _curShowNodeNum;
+        if (_curSkipNodeNum != needSkipNumber)
+        {
+            UpdateBtns(needSkipNumber);
+            _curSkipNodeNum = needSkipNumber;
+        }
+
     }
 
 }

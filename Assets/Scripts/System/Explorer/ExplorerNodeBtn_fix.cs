@@ -34,6 +34,15 @@ namespace System.Explorer
             {
                 extraBtn.interactable = true;
                 fileIcon.sprite = explorerIcons.GetSprite("folder");
+                if (!ExplorerNode.IsExpand)
+                {
+                    extraBtn.transform.rotation = Quaternion.Euler(0, 0, 0);
+                }
+                else
+                {
+                    extraBtn.transform.rotation = Quaternion.Euler(0, 0, -90);
+                }
+
             }
             else
             {

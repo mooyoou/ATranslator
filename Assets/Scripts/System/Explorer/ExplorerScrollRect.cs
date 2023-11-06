@@ -1,8 +1,9 @@
-using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-namespace UnityEngine.UI
+namespace System.Explorer
 {
     [SelectionBase]
     [ExecuteAlways]
@@ -461,7 +462,7 @@ namespace UnityEngine.UI
 
         private RectTransform m_ViewRect;
 
-        protected RectTransform viewRect
+        protected internal RectTransform  viewRect
         {
             get
             {
@@ -528,8 +529,10 @@ namespace UnityEngine.UI
             }
             set
             {
-                m_CustomVerticalSize = value;
-                m_VerticalScrollbar.size = Mathf.Clamp01(m_CustomVerticalSize);
+                m_CustomVerticalSize = Mathf.Clamp01(value);
+                
+                m_VerticalScrollbar.size = m_CustomVerticalSize;
+                m_VerticalScrollbar.value = verticalNormalizedPosition;
                 UpdateScrollbarVisibility();
             }
         }
@@ -940,7 +943,10 @@ namespace UnityEngine.UI
             if (m_VerticalScrollbar)
             {
                 if (m_ContentBounds.size.y > 0)
-                    m_VerticalScrollbar.size = m_CustomVerticalSize>0 ? m_CustomVerticalSize : Mathf.Clamp01((m_ViewBounds.size.y - Mathf.Abs(offset.y)) / m_ContentBounds.size.y);
+                {
+                    float defaultSize = Mathf.Clamp01((m_ViewBounds.size.y - Mathf.Abs(offset.y)) / m_ContentBounds.size.y);
+                    m_VerticalScrollbar.size = m_CustomVerticalSize > 0 ? m_CustomVerticalSize : defaultSize;
+                }
                 else
                     m_VerticalScrollbar.size = 1;
 
