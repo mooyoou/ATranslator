@@ -1,13 +1,14 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
+using UI.InfiniteListScrollRect;
+using UI.InfiniteListScrollRect.Runtime;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
 namespace System.Explorer
 {
-    public class ExplorerNodeBtn : MonoBehaviour
+    public class ExplorerNodeBtn : InfiniteListElement
     {
         [SerializeField]
         private Button extraBtn;
@@ -19,37 +20,48 @@ namespace System.Explorer
         private SpriteAtlas explorerIcons;
         [SerializeField] 
         private HorizontalLayoutGroup horizontalLayoutGroup;
-        [SerializeField]
-        private Transform subNodeRoot;
-        
-        
-        internal ExplorerNode ExplorerNode;
 
-        private bool _isSubNodeGen;
+        internal ExplorerNodeData ExplorerNode;
 
-        private ExplorerNodeBtn _explorerNodeBtnP;
-        //是否展开状态
-        private bool _isExpand;
-
-        private List<ExplorerNodeBtn> _explorerNodeBtns=new List<ExplorerNodeBtn>();
-
-        internal void Init(ExplorerNode explorerNode,ExplorerNodeBtn explorerNodeP)
+        private int _btnIndex;
+        private InfiniteListScrollRect _infiniteListScrollRect; 
+        /// <summary>
+        /// 更新显示数据
+        /// </summary>
+        /// <param name="scrollRect">无限列表滚动视野</param>
+        /// <param name="index"></param>
+        /// <param name="data">无限列表数据</param>
+        public override void OnUpdateData(InfiniteListScrollRect scrollRect,int index, InfiniteListData data)
         {
-            ExplorerNode = explorerNode;
-            _explorerNodeBtnP = explorerNodeP;
-            tmpText.text = ExplorerNode.FileName;
-            horizontalLayoutGroup.padding.left = explorerNode.Depth * 25;
-            if (ExplorerNode.IsFolder)
+            _infiniteListScrollRect = scrollRect;
+            _btnIndex = index;
+            ExplorerNode = data as ExplorerNodeData ;
+            
+            if (ExplorerNode != null)
             {
-                extraBtn.gameObject.SetActive(true);
-                fileIcon.sprite = explorerIcons.GetSprite("folder");
-            }
-            else
-            {
-                fileIcon.sprite = explorerIcons.GetSprite("file");
-                extraBtn.gameObject.SetActive(false);
+                tmpText.text = ExplorerNode.FileName;
+                horizontalLayoutGroup.padding.left = ExplorerNode.Depth * 23;
+                if (ExplorerNode.IsFolder)
+                {
+                    extraBtn.interactable = true;
+                    fileIcon.sprite = explorerIcons.GetSprite("folder");
+                    if (!ExplorerNode.IsExpand)
+                    {
+                        extraBtn.transform.rotation = Quaternion.Euler(0, 0, 0);
+                    }
+                    else
+                    {
+                        extraBtn.transform.rotation = Quaternion.Euler(0, 0, -90);
+                    }
+                }
+                else
+                {
+                    fileIcon.sprite = explorerIcons.GetSprite("file");
+                    extraBtn.interactable = false;
+                }
             }
         }
+        
         /// <summary>
         /// 展开按钮点击
         /// </summary>
@@ -57,50 +69,61 @@ namespace System.Explorer
         {
             if (ExplorerNode.IsFolder)
             {
+                List<ExplorerNodeData> explorerNodeDatas;
+
+
                 //状态处理
-                if (_isExpand)
+                if (ExplorerNode.IsExpand)
                 {
-                    extraBtn.transform.rotation=Quaternion.Euler(0,0,0);
-                    foreach (var explorerNodeBtn in _explorerNodeBtns)
-                    {
-                        explorerNodeBtn.gameObject.SetActive(false);
-                    }
+                    explorerNodeDatas = GetNodeList(ExplorerNode);//获取子节点
+                    ExplorerNode.IsExpand = !ExplorerNode.IsExpand;
+                    //->折叠
+                    extraBtn.transform.rotation = Quaternion.Euler(0, 0, 0);
+                    
+                    
+                    explorerNodeDatas.RemoveAt(0);
+                    _infiniteListScrollRect.RemoveData(explorerNodeDatas);
                 }
                 else
                 {
-                    extraBtn.transform.rotation=Quaternion.Euler(0,0,-90);
-                    if (!_isSubNodeGen)
-                    {
-                        for(int i=0;i<ExplorerNode.SubExplorerNodes.Count;i++)
-                        {
-                            ExplorerNodeBtn explorerNodeBtn = Instantiate(_explorerNodeBtnP, subNodeRoot);
-                            explorerNodeBtn.Init(ExplorerNode.SubExplorerNodes[i], _explorerNodeBtnP);
-                            _explorerNodeBtns.Add(explorerNodeBtn);
-                        }
-                        
-                        _isSubNodeGen = true;
-                    }
-                    else
-                    {
-                        foreach (var explorerNodeBtn in _explorerNodeBtns)
-                        {
-                            explorerNodeBtn.gameObject.SetActive(true);
-                        }
-                    }
+                    ExplorerNode.IsExpand = !ExplorerNode.IsExpand;
+                    explorerNodeDatas = GetNodeList(ExplorerNode);
+                    //->展开
+                    extraBtn.transform.rotation = Quaternion.Euler(0, 0, -90);
+                    
+                    explorerNodeDatas.RemoveAt(0);
+                    _infiniteListScrollRect.AddData(explorerNodeDatas,_btnIndex+1);
                 }
-                
-                //转变状态
-                _isExpand = !_isExpand;
             }
         }
+        
+        private List<ExplorerNodeData> GetNodeList(ExplorerNodeData explorerNode)
+        {
+            List<ExplorerNodeData> listDatas = new List<ExplorerNodeData>();
+            Stack<ExplorerNodeData> nodeStack = new Stack<ExplorerNodeData>();
+            nodeStack.Push(explorerNode);
+
+            while (nodeStack.Count > 0)
+            {
+                ExplorerNodeData curNode = nodeStack.Pop();
+            
+                if (curNode.IsFolder && curNode.IsExpand)
+                {
+                    foreach (var nodeBtn in curNode.SubExplorerNodes)
+                    {
+                        nodeStack.Push(nodeBtn);
+                    }
+                }
+                listDatas.Add(curNode);
+            }
+
+            return listDatas;
+        }
+        
+        
         public void OnNodeClick()
         {
 
-        }
-
-        public List<ExplorerNodeBtn> GetSubExplorerNodeBtns()
-        {
-            return _explorerNodeBtns;
         }
 
     }
