@@ -95,7 +95,7 @@ namespace System.Topbar
         
             _topMenus.Add("<u>T</u>ests",new List<MenuNode>()
             {
-                new MenuNode("Debug"),
+                new MenuNode("Debug","open_debug_view"),
                 new MenuNode("Debug2"),
                 new MenuNode("Debug3")
             });

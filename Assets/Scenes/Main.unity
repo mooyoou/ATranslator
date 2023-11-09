@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 11672035}
   - component: {fileID: 11672036}
   - component: {fileID: 11672037}
+  - component: {fileID: 11672038}
   m_Layer: 9
   m_Name: DebugCanvas
   m_TagString: Untagged
@@ -158,6 +159,7 @@ RectTransform:
   - {fileID: 1409392305}
   - {fileID: 20924870}
   - {fileID: 773607447}
+  - {fileID: 2109820502}
   m_Father: {fileID: 1004881175}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -185,6 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9588b53f67425a458f9d0f517c685ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvasRectTransform: {fileID: 1004881175}
 --- !u!114 &11672036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,7 +218,7 @@ Canvas:
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 1
-  m_OverridePixelPerfect: 0
+  m_OverridePixelPerfect: 1
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
   m_AdditionalShaderChannelsFlag: 25
@@ -223,6 +226,23 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 100
   m_TargetDisplay: 0
+--- !u!114 &11672038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 11672032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &20924869
 GameObject:
   m_ObjectHideFlags: 0
@@ -385,6 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d6dfc15096dc8c48a5d63a97deb9fc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugConsole: {fileID: 11672036}
 --- !u!114 &30431017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,6 +486,10 @@ PrefabInstance:
       propertyPath: CanvasScaler
       value: 
       objectReference: {fileID: 1004881173}
+    - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
+      propertyPath: canvasTransform
+      value: 
+      objectReference: {fileID: 1004881175}
     - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
       propertyPath: controlLayoutElement
       value: 
@@ -1367,7 +1392,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 135}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -20, y: -20}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &550393364
@@ -1390,7 +1415,7 @@ MonoBehaviour:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
           m_MethodName: OnAngleDrag
-          m_Mode: 1
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1405,8 +1430,8 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleDown
-          m_Mode: 1
+          m_MethodName: OnPointDown
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1418,19 +1443,7 @@ MonoBehaviour:
   - eventID: 3
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 11672035}
-          m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleRelease
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
 --- !u!114 &550393365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1572,7 +1585,23 @@ MonoBehaviour:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
           m_MethodName: OnButtonDrag
-          m_Mode: 1
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 11672035}
+          m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
+          m_MethodName: OnPointDown
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1786,12 +1815,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1396039105}
   - {fileID: 568083044}
   - {fileID: 1901005713}
   - {fileID: 890771684}
   - {fileID: 550393363}
   - {fileID: 1570553358}
-  - {fileID: 1396039105}
   m_Father: {fileID: 11672033}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2032,7 +2061,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 20, y: 20}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &890771685
@@ -2055,7 +2084,7 @@ MonoBehaviour:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
           m_MethodName: OnAngleDrag
-          m_Mode: 1
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2070,8 +2099,8 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleDown
-          m_Mode: 1
+          m_MethodName: OnPointDown
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2083,19 +2112,7 @@ MonoBehaviour:
   - eventID: 3
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 11672035}
-          m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleRelease
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
 --- !u!114 &890771686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2678,6 +2695,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1004881173}
     - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
+      propertyPath: canvasTransform
+      value: 
+      objectReference: {fileID: 1004881175}
+    - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
       propertyPath: controlLayoutElement
       value: 
       objectReference: {fileID: 172174391}
@@ -2850,8 +2871,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_AnchoredPosition: {x: 0, y: -20}
+  m_SizeDelta: {x: 20, y: -20}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1308150875
 MonoBehaviour:
@@ -3557,7 +3578,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 225}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 20, y: -20}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1570553359
@@ -3580,7 +3601,7 @@ MonoBehaviour:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
           m_MethodName: OnAngleDrag
-          m_Mode: 1
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3595,8 +3616,8 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleDown
-          m_Mode: 1
+          m_MethodName: OnPointDown
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3608,19 +3629,7 @@ MonoBehaviour:
   - eventID: 3
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 11672035}
-          m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleRelease
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
 --- !u!114 &1570553360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4052,7 +4061,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -20, y: 20}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1901005714
@@ -4075,7 +4084,7 @@ MonoBehaviour:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
           m_MethodName: OnAngleDrag
-          m_Mode: 1
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4090,24 +4099,8 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 11672035}
           m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleDown
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 3
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 11672035}
-          m_TargetAssemblyTypeName: UI_Dragble, Assembly-CSharp
-          m_MethodName: OnAngleRelease
-          m_Mode: 1
+          m_MethodName: OnPointDown
+          m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4275,6 +4268,138 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TopMenuBtn_P: {fileID: 5111214953339610119, guid: 239158b9c0920f04eab76fd652eafeba, type: 3}
+--- !u!1 &2109820501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2109820502}
+  - component: {fileID: 2109820505}
+  - component: {fileID: 2109820504}
+  - component: {fileID: 2109820503}
+  m_Layer: 9
+  m_Name: CloseBtn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2109820502
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109820501}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 11672033}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -5, y: -5}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 1, y: 1}
+--- !u!114 &2109820503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109820501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 0.101960786}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0.101960786}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.101960786}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.101960786}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 2109820504}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11672032}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2109820504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109820501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 37d805b9ccacbd3478b759c834b2bb71, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2109820505
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109820501}
+  m_CullTransparentMesh: 1
 --- !u!1 &2132031998
 GameObject:
   m_ObjectHideFlags: 0
@@ -4430,6 +4555,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4660820255744256999, guid: 3e7641b602d0c794f961952829a30c60, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660820255744256999, guid: 3e7641b602d0c794f961952829a30c60, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -4519,6 +4648,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5451773589274175123, guid: 3e7641b602d0c794f961952829a30c60, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451773589274175123, guid: 3e7641b602d0c794f961952829a30c60, type: 3}
+      propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7934944338548558249, guid: 3e7641b602d0c794f961952829a30c60, type: 3}
@@ -4717,6 +4850,10 @@ PrefabInstance:
       propertyPath: CanvasScaler
       value: 
       objectReference: {fileID: 1004881173}
+    - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
+      propertyPath: canvasTransform
+      value: 
+      objectReference: {fileID: 1004881175}
     - target: {fileID: 417735527270281383, guid: c2a258d88b59bce4dbce57cadd227e49, type: 3}
       propertyPath: controlLayoutElement
       value: 

@@ -1,80 +1,71 @@
 using System;
-using System.Text.RegularExpressions;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 public class UI_Dragble : MonoBehaviour
 {
     private bool _angleIsPress;
     private Vector2 _orginMidPoint;
+    public RectTransform canvasRectTransform;
+    private Vector2 _btnDownTransformPos;
 
-    private void Awake()
+    /// <summary>
+    /// 按钮按下触发
+    /// </summary>
+    public void OnPointDown(BaseEventData baseEventData)
     {
-        _orginMidPoint = Camera.main!.WorldToScreenPoint(transform.position);
-        _angleIsPress = false;
+        PointerEventData pointEvnetData = baseEventData as PointerEventData ;
+        if (pointEvnetData != null) _btnDownTransformPos = transform.position;
     }
-
 
     /// <summary>
     /// 拖动效果
     /// </summary>
-    public void OnButtonDrag()
+    public void OnButtonDrag(BaseEventData value)
     {
-        Vector2 mousePosition = Input.mousePosition;
-        RectTransform canvasRectTransform = transform.parent as RectTransform;
-        if (!Utility.UI.InRectRange(canvasRectTransform, mousePosition,out Vector2 vector2,10f,10f))
+        PointerEventData  inputEventData = value as PointerEventData ;
+        if (inputEventData != null)
         {
-            return;
-        }
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, mousePosition, Camera.main, out Vector2 localPosition))
-        {
-            var rectTransform = transform as RectTransform;
-            transform.GetComponent<RectTransform>().anchoredPosition = new Vector2(localPosition.x,localPosition.y-rectTransform!.rect.height/2);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, inputEventData.position, null, out Vector2 canvasPosition);
+            if (!Utility.UI.InRectRange(canvasRectTransform, canvasPosition,out Vector2 vector2,10f,10f))
+            {
+                return;
+            }
+            transform.position = _btnDownTransformPos+inputEventData.position-inputEventData.pressPosition;
         }
     }
-
-
 
     /// <summary>
     /// 角拖动
     /// </summary>
-    public void OnAngleDrag()
+    public void OnAngleDrag(BaseEventData baseEventData)
     {
-        if (_angleIsPress)
-        {
-            Vector2 mousePosition = Input.mousePosition;
-            
-            
-            var rectTransform = transform as RectTransform;
-            if (rectTransform != null)
-            {
-                var newWidth = math.max(math.abs(_orginMidPoint.x - mousePosition.x) * 2, 200f);
-                rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,newWidth);
-                var newHeight = math.max(math.abs(_orginMidPoint.y - mousePosition.y)*2, 200f);
-                rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newHeight);
-            }
+        PointerEventData pointEvnetData = baseEventData as PointerEventData ;
 
+        if (pointEvnetData != null)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, pointEvnetData.position, null, out Vector2 canvasPosition);
+            if (!Utility.UI.InRectRange(canvasRectTransform, canvasPosition, out Vector2 vector2, 10f, 10f))
+            {
+                return;
+            }
+            
+            if (pointEvnetData.dragging)
+            {
+                Vector2 mousePosition = pointEvnetData.position;
+                var rectTransform = transform as RectTransform;
+                if (rectTransform != null)
+                {
+                    var localScale = canvasRectTransform.localScale;
+                    var newWidth = math.max(math.abs(_btnDownTransformPos.x - mousePosition.x) * 2 / localScale.x,
+                        200f);
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+                    var newHeight = math.max(math.abs(_btnDownTransformPos.y - mousePosition.y) * 2 / localScale.y,
+                        200f);
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newHeight);
+                }
+            }
         }
     }
-    
-    /// <summary>
-    /// 角按下触发
-    /// </summary>
-    public void OnAngleDown()
-    {
-        
-        _angleIsPress = true;
-        _orginMidPoint = Camera.main!.WorldToScreenPoint(transform.position);
-    }
-    
-    /// <summary>
-    /// 角释放触发
-    /// </summary>
-    public void OnAngleRelease()
-    {
-        _angleIsPress = false;
 
-    }
-    
 }

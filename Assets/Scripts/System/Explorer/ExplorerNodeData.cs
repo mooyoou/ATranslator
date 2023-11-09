@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
-using UI.InfiniteListScrollRect;
+using System.ProjectConfig;
 using UI.InfiniteListScrollRect.Runtime;
-using UnityEngine;
+
 
 namespace System.Explorer
 {
@@ -47,7 +47,19 @@ namespace System.Explorer
             string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
             foreach (string subdirectory in subdirectoryEntries)
             {
-                SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
+                if (ConfigSystem.ProjectConfig.SkipHideFolder)
+                {
+                    
+                    DirectoryInfo folderInfo = new DirectoryInfo(subdirectory);
+
+                    if (HideCheck(folderInfo) //隐藏文件夹跳过
+                        || subdirectory == ConfigSystem.ProjectConfig.ConfigFolderPath)// 不读取配置文件夹
+                    {
+                        continue;
+                    }
+
+                    SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
+                }
             }
             foreach (string fileEntry in fileEntries)
             {
@@ -55,5 +67,14 @@ namespace System.Explorer
             }
         
         }
+
+        private bool HideCheck(DirectoryInfo folderInfo)
+        {
+            bool isHidden = ((folderInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden);
+            if (ConfigSystem.ProjectConfig.SkipHideFolder && isHidden) return true;
+
+            return false;
+        }
+        
     }
 }

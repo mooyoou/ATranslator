@@ -16,7 +16,7 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
         Down,
     }
     public LayoutElement controlLayoutElement;
-    public CanvasScaler CanvasScaler;
+    public RectTransform canvasTransform;
     public PullType pullType;
     private Boolean _isDrag;
     private void Awake()
@@ -29,8 +29,9 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler
     {
         if (_isDrag)
         {
-            float scalingFactorX = (CanvasScaler ? 1920 :CanvasScaler.referenceResolution.x)/ Screen.width;
-            float scalingFactorY = (CanvasScaler ? 1080 :CanvasScaler.referenceResolution.y)/ Screen.height;
+            var localScale = canvasTransform.localScale;
+            float scalingFactorX = 1.0f/localScale.x;
+            float scalingFactorY = 1.0f/localScale.y;
             switch (pullType)
             {
                 case PullType.Left:

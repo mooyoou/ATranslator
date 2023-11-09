@@ -1,12 +1,33 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.ProjectConfig;
+using DebugSystem;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class MainSystem : MonoBehaviour
+namespace System
 {
-    private void Awake()
+    public class MainSystem : MonoBehaviour
     {
-        Debug.Log("Main System Awake");
+
+        public DebugConsole debugConsole;
+    
+        private void Awake()
+        {
+            ApplicationInit();
+            RegisterEvent();
+        }
+
+        private void ApplicationInit()
+        {
+            ConfigSystem.RefreshGlobbalPlayerPrefs();
+        }
+    
+        private void RegisterEvent()
+        {
+            GlobalSubscribeSys.Subscribe("open_debug_view", (objects) =>
+            {
+                debugConsole.gameObject.SetActive(true);
+            });
+        }
+
     }
 }

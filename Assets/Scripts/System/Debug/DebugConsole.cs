@@ -17,8 +17,8 @@ namespace DebugSystem
         private void Awake()
         {
             _debugFsm = new DebugFsm(console);
-
         }
+
 
         /// <summary>
         /// 命令处理
@@ -49,7 +49,5 @@ namespace DebugSystem
             consolescrollRect.verticalNormalizedPosition = 0f;
             consoleInput.text = "";
         }
-
-
     }
 }

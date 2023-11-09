@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Explorer;
+using System.IO;
+using System.ProjectConfig;
 using System.Threading.Tasks;
 using UI.InfiniteListScrollRect;
 using UI.InfiniteListScrollRect.Runtime;
@@ -15,7 +17,6 @@ public class ExplorerCtrl : MonoBehaviour
     private ExplorerNodeData _rootExplorerNode;
     private ExplorerNodeData _newRootExplorerNode;
     private int _tipId;
-    private string _lastChoosePath;
     private Coroutine _initNodesCoroutine;
     
     private void Awake()
@@ -46,11 +47,16 @@ public class ExplorerCtrl : MonoBehaviour
     private void OpenNewProject()
     {
         //选择路径
-        _lastChoosePath = Misc.OpenFolderBrowserDialog(_lastChoosePath);
-        if(string.IsNullOrEmpty(_lastChoosePath)) return;
-
-        OpenTip(_lastChoosePath);
-        _initNodesCoroutine = StartCoroutine(InitNodesAsync(_lastChoosePath));
+        string lastOpenHistoru = null;
+        if (ConfigSystem.OpenProjectHistories.Count > 0)
+        {
+            lastOpenHistoru = ConfigSystem.OpenProjectHistories[0];
+        }
+        string projectPath = Misc.OpenFolderBrowserDialog(lastOpenHistoru);
+        if(string.IsNullOrEmpty(projectPath)) return;
+        _tipId = OpenTip(projectPath);
+        ConfigSystem.AddOpenProjectHistory(projectPath);
+        _initNodesCoroutine = StartCoroutine(InitNodesAsync(projectPath));
 
     }
 
@@ -58,6 +64,7 @@ public class ExplorerCtrl : MonoBehaviour
     {
         Task initTreeTask = Task.Run(() =>
         {
+            ConfigSystem.InitProject(rootPath);
             _newRootExplorerNode = new ExplorerNodeData(rootPath,true,0,null); //建立文件结构树
         });
         yield return new WaitUntil(() => initTreeTask.IsCompleted);
@@ -68,7 +75,7 @@ public class ExplorerCtrl : MonoBehaviour
         _rootExplorerNode = _newRootExplorerNode;
         CloseTip();
     }
-    
+
     /// <summary>
     /// 关闭提示窗口
     /// </summary>
@@ -81,7 +88,7 @@ public class ExplorerCtrl : MonoBehaviour
     /// 打开提示窗口
     /// </summary>
     /// <param name="folderPath"></param>
-    private void OpenTip(string folderPath)
+    private int OpenTip(string folderPath)
     {
         GlobalSubscribeSys.Invoke("open_tips_window",out List<object> ids,new System.Object[]
         {
@@ -90,6 +97,6 @@ public class ExplorerCtrl : MonoBehaviour
             true,
             "cancel_explorer_init"
         });
-        _tipId = ids[0] as int? ?? 0;
+        return ids[0] as int? ?? 0;
     }
 }
