@@ -8,8 +8,23 @@ using UnityEngine;
 public static class GlobalSubscribeSys{
     public delegate void EventDelegate(params object[] objects);
     public delegate object EventDelegateWithReturn(params object[] objects);
-    public static Dictionary<string, List<EventDelegate>> events = new Dictionary<string, List<EventDelegate>>();
-    public static Dictionary<string, List<EventDelegateWithReturn>> returnEvents = new Dictionary<string, List<EventDelegateWithReturn>>();
+    private static Dictionary<string, List<EventDelegate>> _events = new Dictionary<string, List<EventDelegate>>();
+    public static Dictionary<string, List<EventDelegate>> Events {
+        get
+        {
+            return _events;
+        }    
+    }
+    
+    private static Dictionary<string, List<EventDelegateWithReturn>> _returnEvents = new Dictionary<string, List<EventDelegateWithReturn>>();
+    public static Dictionary<string, List<EventDelegateWithReturn>> ReturnEvents {
+        get
+        {
+            return _returnEvents;
+        }    
+    }
+
+
     /// <summary>
     /// 注册事件，不带返回参数
     /// </summary>
@@ -19,7 +34,7 @@ public static class GlobalSubscribeSys{
     {
         List<EventDelegate> actions = null;
         //eventName已存在
-        if (events.TryGetValue(eventName, out actions))
+        if (_events.TryGetValue(eventName, out actions))
         {
             actions.Add(callback);
         }
@@ -28,7 +43,7 @@ public static class GlobalSubscribeSys{
         {
             actions = new List<EventDelegate>();  
             actions.Add(callback);
-            events.Add(eventName, actions);
+            _events.Add(eventName, actions);
         }
     }
 
@@ -41,7 +56,7 @@ public static class GlobalSubscribeSys{
     {
         List<EventDelegateWithReturn> actions = null;
         //eventName已存在
-        if (returnEvents.TryGetValue(eventName, out actions))
+        if (_returnEvents.TryGetValue(eventName, out actions))
         {
             actions.Add(callback);
         }
@@ -50,19 +65,19 @@ public static class GlobalSubscribeSys{
         {
             actions = new List<EventDelegateWithReturn>();  
             actions.Add(callback);
-            returnEvents.Add(eventName, actions);
+            _returnEvents.Add(eventName, actions);
         }
     }
     
     public static void UnSubscribe(string eventName,EventDelegate callback)
     {
         List<EventDelegate> actions = null;
-        if (events.TryGetValue(eventName, out actions))
+        if (_events.TryGetValue(eventName, out actions))
         {
             actions.Remove(callback);
             if (actions.Count == 0)
             {
-                events.Remove(eventName);
+                _events.Remove(eventName);
             }
         }
     }
@@ -70,12 +85,12 @@ public static class GlobalSubscribeSys{
     public static void UnSubscribe(string eventName,EventDelegateWithReturn callback)
     {
         List<EventDelegateWithReturn> actions = null;
-        if (returnEvents.TryGetValue(eventName, out actions))
+        if (_returnEvents.TryGetValue(eventName, out actions))
         {
             actions.Remove(callback);
             if (actions.Count == 0)
             {
-                returnEvents.Remove(eventName);
+                _returnEvents.Remove(eventName);
             }
         }
     }
@@ -85,17 +100,17 @@ public static class GlobalSubscribeSys{
     /// </summary>
     public static void UnSubscribeAllEvents ()
     {
-        events.Clear();
-        returnEvents.Clear();
+        _events.Clear();
+        _returnEvents.Clear();
     }
 
 
     public static void Invoke(string eventName,params object[] args)
     {
         List<EventDelegate> actions = null;
-        if (events.ContainsKey(eventName))
+        if (_events.ContainsKey(eventName))
         {
-            events.TryGetValue(eventName, out actions);
+            _events.TryGetValue(eventName, out actions);
             for(int i = 0 ;i<actions.Count;i++){
                 actions[i](args);
             }
@@ -106,9 +121,9 @@ public static class GlobalSubscribeSys{
     {
         List<EventDelegateWithReturn> actions = null;
         returnObjects = new List<object>();
-        if (returnEvents.ContainsKey(eventName))
+        if (_returnEvents.ContainsKey(eventName))
         {
-            returnEvents.TryGetValue(eventName, out actions);
+            _returnEvents.TryGetValue(eventName, out actions);
             for(int i = 0 ;i<actions.Count;i++)
             {
                 object o = actions[i](args);
