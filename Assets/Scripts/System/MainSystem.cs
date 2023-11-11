@@ -8,8 +8,10 @@ namespace System
     public class MainSystem : MonoBehaviour
     {
 
-        public DebugConsole debugConsole;
-    
+        [SerializeField]
+        private DebugConsole debugConsole;
+        
+        
         private void Awake()
         {
             ApplicationInit();

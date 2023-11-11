@@ -75,10 +75,10 @@ namespace System.Topbar
             _topMenus.Add("<u>F</u>ile",new List<MenuNode>()
             {
                 new MenuNode("OpenProject","open_new_project"),
-                new MenuNode("Open2",null,new List<MenuNode>()
+                new MenuNode("Settings",null,new List<MenuNode>()
                 {
-                    new MenuNode("Open2-test1"),
-                    new MenuNode("Open2-test2"),
+                    new MenuNode("ProjectSettings","open_project_settings"),
+                    new MenuNode("GlobalSettings"),
                     new MenuNode("Open2-test3",null,new List<MenuNode>()
                     {
                         new MenuNode("Open2-test4"),

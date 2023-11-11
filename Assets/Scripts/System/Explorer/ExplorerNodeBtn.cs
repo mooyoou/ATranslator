@@ -40,10 +40,11 @@ namespace System.Explorer
             if (ExplorerNode != null)
             {
                 tmpText.text = ExplorerNode.FileName;
-                horizontalLayoutGroup.padding.left = ExplorerNode.Depth * 23;
+                horizontalLayoutGroup.padding.left = ExplorerNode.Depth * 13+3;
                 if (ExplorerNode.IsFolder)
                 {
-                    extraBtn.interactable = true;
+                    extraBtn.gameObject.SetActive(true);
+                    
                     fileIcon.sprite = explorerIcons.GetSprite("folder");
                     if (!ExplorerNode.IsExpand)
                     {
@@ -57,7 +58,9 @@ namespace System.Explorer
                 else
                 {
                     fileIcon.sprite = explorerIcons.GetSprite("file");
-                    extraBtn.interactable = false;
+                    extraBtn.gameObject.SetActive(false);
+                    horizontalLayoutGroup.padding.left += 13;
+                    // extraBtn.interactable = false;
                 }
             }
         }
