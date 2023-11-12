@@ -18,8 +18,6 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler,IP
     private RectTransform canvasTransform;
     [SerializeField]
     private PullType pullType;
-    [SerializeField]
-    private CursorCtl cursorCtl;
     
     private Boolean _isDrag;
 
@@ -68,37 +66,30 @@ public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler,IP
     public void OnPointerUp(PointerEventData eventData)
     {
         _isDrag = false;
-        cursorCtl.ResetCursor(this);
+        GlobalSubscribeSys.Invoke("reset_cursor",this);
     }
 
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (cursorCtl != null)
+        switch (pullType)
         {
-            switch (pullType)
-            {
-                case PullType.Down:
-                case PullType.Up:
-                    cursorCtl.SetCursor(CursorCtl.CursorType.ns,this);
-                    break;
-                case PullType.Left:
-                case PullType.Right:
-                    cursorCtl.SetCursor(CursorCtl.CursorType.ew,this);
-                    break;
-
-            }
+            case PullType.Down:
+            case PullType.Up:
+                GlobalSubscribeSys.Invoke("set_cursor", CursorCtl.CursorType.ns, this);
+                break;
+            case PullType.Left:
+            case PullType.Right:
+                GlobalSubscribeSys.Invoke("set_cursor", CursorCtl.CursorType.ew, this);
+                break;
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (cursorCtl != null)
+        if (!_isDrag)
         {
-            if (!_isDrag)
-            {
-                cursorCtl.ResetCursor(this);
-            }
+            GlobalSubscribeSys.Invoke("reset_cursor", this);
         }
     }
 }

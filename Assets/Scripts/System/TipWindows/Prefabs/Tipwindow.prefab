@@ -729,7 +729,7 @@ GameObject:
   - component: {fileID: 548454599275844899}
   - component: {fileID: 7891023420303508638}
   m_Layer: 10
-  m_Name: TipForm
+  m_Name: Tipwindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

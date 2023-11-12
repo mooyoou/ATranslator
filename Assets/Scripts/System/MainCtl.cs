@@ -1,17 +1,10 @@
 using System.ProjectConfig;
-using DebugSystem;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace System
 {
-    public class MainSystem : MonoBehaviour
+    public class MainCtl : MonoBehaviour
     {
-
-        [SerializeField]
-        private DebugConsole debugConsole;
-        
-        
         private void Awake()
         {
             ApplicationInit();
@@ -25,10 +18,6 @@ namespace System
     
         private void RegisterEvent()
         {
-            GlobalSubscribeSys.Subscribe("open_debug_view", (objects) =>
-            {
-                debugConsole.gameObject.SetActive(true);
-            });
         }
 
     }

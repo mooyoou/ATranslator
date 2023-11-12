@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,7 +35,55 @@ public class CursorCtl : MonoBehaviour
     private CursorType curType = CursorType.normal;
     
     private object curLockObj = null;
-    
+
+    private void Awake()
+    {
+        RegisterEvents();
+    }
+
+    private void RegisterEvents()
+    {
+        GlobalSubscribeSys.Subscribe("set_cursor", (objects) =>
+        {
+            try
+            {
+                CursorType cursorType = CursorType.normal;
+                object CommandObj = null;
+                if (objects.Length >= 2)
+                {
+                    cursorType = (CursorType)objects[0];
+                    CommandObj = objects[1];
+                }
+                SetCursor(cursorType, CommandObj);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        });
+
+        GlobalSubscribeSys.Subscribe("reset_cursor", (objects) =>
+        {
+            try
+            {
+                object CommandObj = null;
+                if (objects.Length >= 1)
+                {
+                    CommandObj = objects[0];
+                }
+
+                ResetCursor(CommandObj);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        });
+
+
+    }    
     public void SetCursor(CursorType cursorType,object CommandObj)
     {
         if (curLockObj != null)

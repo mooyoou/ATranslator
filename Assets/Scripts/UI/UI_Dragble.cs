@@ -26,8 +26,7 @@ public class UI_Dragble : MonoBehaviour
         PointerEventData  inputEventData = value as PointerEventData ;
         if (inputEventData != null)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, inputEventData.position, null, out Vector2 canvasPosition);
-            if (!Utility.UI.InRectRange(canvasRectTransform, canvasPosition,out Vector2 vector2,10f,10f))
+            if (!Utility.UI.InRectRange(canvasRectTransform, inputEventData.position,out Vector2 vector2,10f,10f))
             {
                 return;
             }
@@ -44,8 +43,7 @@ public class UI_Dragble : MonoBehaviour
 
         if (pointEvnetData != null)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, pointEvnetData.position, null, out Vector2 canvasPosition);
-            if (!Utility.UI.InRectRange(canvasRectTransform, canvasPosition, out Vector2 vector2, 10f, 10f))
+            if (!Utility.UI.InRectRange(canvasRectTransform, pointEvnetData.position, out Vector2 vector2, 10f, 10f))
             {
                 return;
             }
