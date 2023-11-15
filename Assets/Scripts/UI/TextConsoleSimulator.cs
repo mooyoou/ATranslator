@@ -1,11 +1,10 @@
 using System;
-using UnityEngine;
 using System.Collections;
 using TMPro;
-using Unity.VisualScripting;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace DebugSystem
+namespace UI
 {
     public class TextConsoleSimulator : MonoBehaviour
     {

@@ -25,8 +25,8 @@ namespace Utility.Form
         private Boolean _isDrag;
         private Rect _originRect;
         private Vector2 _originAniPos;
-        private int minHeight = 100;
-        private int minWidth = 100;
+        public int minHeight = 100;
+        public int minWidth = 100;
         private float TOLERANCE = 1f;
     
         private void Awake()

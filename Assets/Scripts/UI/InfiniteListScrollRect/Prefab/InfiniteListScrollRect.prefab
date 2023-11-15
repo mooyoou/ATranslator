@@ -178,6 +178,7 @@ MonoBehaviour:
   ElementTemplate: {fileID: 0}
   ListingDirection: 1
   LayoutGroup: {fileID: 6226372351612819913}
+  needCheckViewLength: 1
 --- !u!223 &7857570621317980297
 Canvas:
   m_ObjectHideFlags: 0

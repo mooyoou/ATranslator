@@ -11,11 +11,14 @@ namespace UI.InfiniteListScrollRect.Editor
     {
         SerializedProperty m_Element;
         SerializedProperty m_ListingDirection;
+        SerializedProperty m_needCheckViewLength;
         protected override void OnEnable()
         {
             base.OnEnable();
             m_Element               = serializedObject.FindProperty("ElementTemplate");
             m_ListingDirection      = serializedObject.FindProperty("ListingDirection");
+            m_needCheckViewLength      = serializedObject.FindProperty("needCheckViewLength");
+
         }
 
         public override void OnInspectorGUI()
@@ -35,6 +38,8 @@ namespace UI.InfiniteListScrollRect.Editor
             EditorGUILayout.PropertyField(m_Element);
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_ListingDirection);
+            EditorGUILayout.PropertyField(m_needCheckViewLength);
+            
             if (EditorGUI.EndChangeCheck())
             {
                 SerializedProperty layoutGroupProperty = serializedObject.FindProperty("LayoutGroup");

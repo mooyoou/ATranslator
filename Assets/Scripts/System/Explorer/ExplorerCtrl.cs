@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Config;
 using System.Explorer;
-using System.IO;
-using System.ProjectConfig;
 using System.Threading.Tasks;
-using UI.InfiniteListScrollRect;
 using UI.InfiniteListScrollRect.Runtime;
 using UnityEngine;
 using Utility;
@@ -47,12 +45,12 @@ public class ExplorerCtrl : MonoBehaviour
     private void OpenNewProject()
     {
         //选择路径
-        string lastOpenHistoru = null;
+        string lastOpenHistory = null;
         if (ConfigSystem.OpenProjectHistories.Count > 0)
         {
-            lastOpenHistoru = ConfigSystem.OpenProjectHistories[0];
+            lastOpenHistory = ConfigSystem.OpenProjectHistories[0];
         }
-        string projectPath = Misc.OpenFolderBrowserDialog(lastOpenHistoru);
+        string projectPath = Misc.OpenFolderBrowserDialog(lastOpenHistory);
         if(string.IsNullOrEmpty(projectPath)) return;
         _tipId = OpenTip(projectPath);
         ConfigSystem.AddOpenProjectHistory(projectPath);

@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI.InfiniteListScrollRect.Runtime
@@ -32,7 +35,7 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <summary>
         /// 初始边缘间隔
         /// </summary>
-        private RectOffset _orignRectOffset;
+        private RectOffset _orignRectOffset = new RectOffset();
         
         /// <summary>
         /// 元素之间的间隔
@@ -56,6 +59,11 @@ namespace UI.InfiniteListScrollRect.Runtime
         }
 
         /// <summary>
+        /// 是否需要检查view框范围变化
+        /// </summary>
+        [SerializeField] private bool needCheckViewLength = true;
+        
+        /// <summary>
         /// 是否执行节点刷新标记
         /// </summary>
         private bool _needRefresh = false;
@@ -69,10 +77,33 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// 
         /// </summary>
         private int _preOriginIndex = -1;
+
+        private float currentViewLength;
+        
         
         protected override void LateUpdate()
         {
             base.LateUpdate();
+            if (needCheckViewLength)
+            {
+                if (ListingDirection == Direction.Vertical)
+                {
+                    if (Math.Abs(viewport.rect.size.y - currentViewLength) > 1.0f)
+                    {
+                        currentViewLength = viewport.rect.size.y;
+                        _needRefresh = true;
+                    }
+                }
+                else if (ListingDirection == Direction.Horizontal)
+                {
+                    if (Math.Abs(viewport.rect.size.x - currentViewLength) > 1.0f)
+                    {
+                        currentViewLength = viewport.rect.size.x;
+                        _needRefresh = true;
+                    }
+                }
+            }
+            
             if (_needRefresh)
             {
                 RefreshScrollView(); 
@@ -94,22 +125,28 @@ namespace UI.InfiniteListScrollRect.Runtime
         {
             return;
         }
-        
-        protected override void Awake()
+
+        protected override void OnEnable()
         {
-            base.Awake();
-            
+            base.OnEnable();
+                
             if (ListingDirection == Direction.Vertical)
             {
+                currentViewLength = viewport.rect.size.y;
                 onValueChanged.AddListener((value) => { _needRefresh = true; });
             }
             else if(ListingDirection == Direction.Horizontal)
             {
+                currentViewLength = viewport.rect.size.x;
                 horizontalScrollbar.onValueChanged.AddListener((value) => { _needRefresh = true; });
             }
             
             _interval = LayoutGroup.spacing;
-            _height = ((RectTransform)ElementTemplate.transform).rect.height;
+            if (ElementTemplate != null)
+            {
+                _height = ((RectTransform)ElementTemplate.transform).rect.height;
+            }
+
             if (ListingDirection == Direction.Vertical)
             {
                 LayoutGroup.padding.top = (int)_interval;//首部填充与间隔保持一致方便计算
@@ -118,6 +155,12 @@ namespace UI.InfiniteListScrollRect.Runtime
                 LayoutGroup.padding.left = (int)_interval;//首部填充与间隔保持一致方便计算
             }
             _orignRectOffset = new RectOffset(LayoutGroup.padding.left,LayoutGroup.padding.right,LayoutGroup.padding.top,LayoutGroup.padding.bottom);
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+        
         }
 
         /// <summary>
@@ -170,16 +213,13 @@ namespace UI.InfiniteListScrollRect.Runtime
         {
             _dataUpdate = true;
             _datas.Clear();
-            if (data == null)
+            foreach (var element in _displayElements)
             {
-                foreach (var element in _displayElements)
-                {
-                    RecycleElement(element.Value);
-                }
-
-                _displayElements.Clear();
+                RecycleElement(element.Value);
             }
-            else
+
+            _displayElements.Clear();
+            if (data != null)
             {
                 _datas.Add(data);
             }
@@ -195,15 +235,13 @@ namespace UI.InfiniteListScrollRect.Runtime
         {
             _dataUpdate = true;
             _datas.Clear();
-            if (datas == null)
+            foreach (var element in _displayElements)
             {
-                foreach (var element in _displayElements)
-                {
-                    RecycleElement(element.Value);
-                }
-                _displayElements.Clear();
+                RecycleElement(element.Value);
             }
-            else
+            _displayElements.Clear();
+            
+            if (datas == null )
             {
                 for (int i = 0; i < datas.Count; i++)
                 {
@@ -234,6 +272,12 @@ namespace UI.InfiniteListScrollRect.Runtime
             }
         }
 
+        /// <summary>
+        /// 替换指定列表数据
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="replaceIndex"></param>
+        /// <typeparam name="T"></typeparam>
         public void ReplaceData<T>(List<T> datas,int replaceIndex) where T : InfiniteListData
         {
             _dataUpdate = true;
@@ -275,6 +319,13 @@ namespace UI.InfiniteListScrollRect.Runtime
                 RefreshScrollContent();
             }
         }
+        /// <summary>
+        /// 批量替换指定列表数据
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="count"></param>
+        /// <typeparam name="T"></typeparam>
         public void RangeReplaceData<T>(List<T> datas, int startIndex ,int count) where T : InfiniteListData
         {
             _dataUpdate = true;
@@ -346,6 +397,67 @@ namespace UI.InfiniteListScrollRect.Runtime
 
             RefreshScrollView();
         }
+
+        /// <summary>
+        /// 返回指定列表中的Obj
+        /// </summary>
+        /// <param name="infiniteListData"></param>
+        /// <param name="infiniteListElement"></param>
+        /// <returns></returns>
+        public bool GetDisplayElement(InfiniteListData infiniteListData ,out  InfiniteListElement infiniteListElement)
+        {
+            if (_displayElements.TryGetValue(infiniteListData, out infiniteListElement))
+            {
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 跳转到指定元素位置
+        /// </summary>
+        /// <param name="infiniteListData"></param>
+        /// <param name="infiniteListElement"></param>
+        /// <returns></returns>
+        public bool JumpToElement(InfiniteListData infiniteListData, out InfiniteListElement infiniteListElement)
+        {
+            if (_displayElements.TryGetValue(infiniteListData, out infiniteListElement))
+            {
+                return true;
+            }
+            else
+            {
+                if (!_datas.Contains(infiniteListData)) return false;
+                int indexOf = _datas.IndexOf(infiniteListData);
+                int maxNum = _datas.Count;
+                int showNum = _displayElements.Count;
+                float value = 1-Mathf.Clamp01((float)indexOf / (maxNum - showNum));  // 计算value值
+                if (ListingDirection == Direction.Vertical)
+                {
+                    normalizedPosition = new Vector2(normalizedPosition.x, value);
+                }else if (ListingDirection == Direction.Horizontal)
+                {
+                    normalizedPosition = new Vector2(value,normalizedPosition.y);
+                }
+
+                RefreshScrollView();
+                if (_displayElements.TryGetValue(infiniteListData, out infiniteListElement))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        
+        
+        
         
          /// <summary>
         /// 刷新滚动视图
@@ -365,12 +477,12 @@ namespace UI.InfiniteListScrollRect.Runtime
             }
 
             int originIndex = Mathf.Max((int)(originLength/ (_height + _interval)),0);
-
+            ClearInvisibleElement(originLength, viewLength);
             if (_preOriginIndex != originIndex || _dataUpdate)
             {
                 _preOriginIndex = originIndex;
                 _dataUpdate = false;
-                ClearInvisibleElement(originLength, viewLength);
+
                 LayoutGroup.padding.top = (int)(_height + _interval) * originIndex + _orignRectOffset.top;
 
                 int index;
@@ -427,7 +539,12 @@ namespace UI.InfiniteListScrollRect.Runtime
                  if (ListingDirection == Direction.Vertical)
                  {
                      float realY = element.Value.UITransform.anchoredPosition.y + contentP;
-                     if (realY < _height && realY > -viewLength)
+                     float realTopY = realY + (1 - element.Value.UITransform.pivot.y) *
+                         element.Value.UITransform.rect.height;
+                     float realBottomY = realY - element.Value.UITransform.pivot.y *
+                         element.Value.UITransform.rect.height;
+
+                     if (realBottomY < 0 && realTopY > -viewLength)
                      {
                          continue;
                      }
@@ -438,7 +555,13 @@ namespace UI.InfiniteListScrollRect.Runtime
                  }else if (ListingDirection == Direction.Horizontal)
                  {
                      float realX = element.Value.UITransform.anchoredPosition.x + contentP;
-                     if (realX > -_height && realX < viewLength)
+                     
+                     float realRightX = realX + (1 - element.Value.UITransform.pivot.y) *
+                         element.Value.UITransform.rect.width;
+                     float realLeftX = realX - element.Value.UITransform.pivot.y *
+                         element.Value.UITransform.rect.width;
+                     
+                     if (realRightX > -_height && realLeftX < viewLength)
                      {
                          continue;
                      }

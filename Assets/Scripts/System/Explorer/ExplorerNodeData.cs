@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Config;
 using System.IO;
-using System.ProjectConfig;
 using UI.InfiniteListScrollRect.Runtime;
 
 
@@ -53,7 +53,7 @@ namespace System.Explorer
                     DirectoryInfo folderInfo = new DirectoryInfo(subdirectory);
 
                     if (HideCheck(folderInfo) //隐藏文件夹跳过
-                        || subdirectory == ConfigSystem.ProjectConfig.ConfigFolderPath)// 不读取配置文件夹
+                        || subdirectory == ConfigSystem.CurConfigFolderPath)// 不读取配置文件夹
                     {
                         continue;
                     }

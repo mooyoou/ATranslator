@@ -1,40 +1,94 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+using Unity.VisualScripting;
 using UnityEngine;
 
-namespace System.ProjectConfig
+
+namespace System.Config
 {
     public class ProjectConfig
     {
-        public ProjectConfig(string configFolderPath)
+        public ProjectConfig(List<string> loadRules = null)
         {
-            ConfigFolderPath = configFolderPath;
+            if(loadRules!=null)
+            {
+                _loadRules = loadRules;
+            }
+        }
+        
+        [JsonConstructor]
+        public ProjectConfig(bool skipHideFolder, List<string> loadRules = null)
+        {
+            _skipHideFolder = skipHideFolder;
+            if(loadRules!=null)
+            {
+                _loadRules = loadRules;
+            }
         }
 
-        public string ConfigFolderPath = "";
-        public bool SkipHideFolder = true;
+        private bool _skipHideFolder = true;
+        public bool SkipHideFolder
+        {
+            get
+            {
+                return _skipHideFolder;
+            }
+        }
+        
+        private List<string> _loadRules = new List<string>()
+        {
+            "*.txt",
+            "*.word"
+        };
+        public List<string> LoadRules
+        {
+            get
+            {
+                return _loadRules;
+            }
+        }
     }
     
     public static class ConfigSystem
     {
-        private static ProjectConfig _projectConfig;
+        private static ProjectConfig _projectConfig = new ProjectConfig();
         public static ProjectConfig ProjectConfig
         {
             get
             {
                 return _projectConfig;
             }
+            set
+            {
+                _projectConfig = value;
+                InitConfigFile(_projectConfig);
+                InvokeConfigUpdateEvent();
+            }
         }
+        public static string CurConfigFolderPath
+        {
+            get
+            {
+                return _curConfigFolderPath;
+            }
+        }
+        private static string _curConfigFolderPath;
 
+
+        /// <summary>
+        ///  应用全局配置
+        /// </summary>
         private static Dictionary<string, string> _globalPrefs = new Dictionary<string, string>()
         {
-            { "OpenProjectHistory", "" },
+            { "OpenProjectHistory", "" },//项目打开历史
 
         };
 
+        
+        
         private static List<string> _openProjectHistory = new List<string>();
-
         public static List<string> OpenProjectHistories
         {
             get
@@ -43,6 +97,12 @@ namespace System.ProjectConfig
             }
         }
 
+        public static event EventHandler ConfigUpdate;
+
+        private static void InvokeConfigUpdateEvent()
+        {
+            ConfigUpdate?.Invoke(typeof(This),null);
+        }
         
         /// <summary>
         /// 更新程序偏好设置
@@ -117,6 +177,8 @@ namespace System.ProjectConfig
                 if (Directory.Exists(configFolderPath))Directory.Delete(configFolderPath, true);
                 InitProjectConfig(configFolderPath);
             }
+
+
         }
         
         
@@ -127,7 +189,6 @@ namespace System.ProjectConfig
         private static bool LoadProjectConfig(string configFolderPath)
         {
             if(!LoadConfigFile(configFolderPath))return false ;
-            _projectConfig.ConfigFolderPath = configFolderPath;
             return true;
         }
         
@@ -136,7 +197,11 @@ namespace System.ProjectConfig
             try
             {
                 string configfilePath = Path.Combine(configFolderPath, "config");
-                _projectConfig = JsonUtility.FromJson<ProjectConfig>(File.ReadAllText(configfilePath));
+
+                string configfile = File.ReadAllText(configfilePath);
+                _projectConfig = JsonConvert.DeserializeObject<ProjectConfig>(configfile);
+
+                _curConfigFolderPath = configFolderPath;
             }
             catch (Exception e)
             {
@@ -150,19 +215,23 @@ namespace System.ProjectConfig
             Directory.CreateDirectory(configFolderPath);
             DirectoryInfo folderInfo = new DirectoryInfo(configFolderPath);
             folderInfo.Attributes |= FileAttributes.Hidden;
-            
-            InitConfigFile(configFolderPath);
-            _projectConfig.ConfigFolderPath = configFolderPath;
+            _curConfigFolderPath = configFolderPath;
+            ProjectConfig = new ProjectConfig();
         }
 
-
-        private static void InitConfigFile(string configFolderPath)
+        /// <summary>
+        /// 建立配置文件
+        /// </summary>
+        /// <param name="configFolderPath"></param>
+        private static void InitConfigFile(ProjectConfig projectConfig)
         {
-            string configfilePath = Path.Combine(configFolderPath, "config");
+            if(string.IsNullOrEmpty(_curConfigFolderPath))return;
             
-            _projectConfig = new ProjectConfig(configFolderPath);
-            string json = JsonUtility.ToJson(_projectConfig,true);
-            
+            string configfilePath = Path.Combine(_curConfigFolderPath, "config");
+
+            // JsonConvert.
+            string json = JsonConvert.SerializeObject(projectConfig);
+
             File.WriteAllText(configfilePath, json);
         }
         
