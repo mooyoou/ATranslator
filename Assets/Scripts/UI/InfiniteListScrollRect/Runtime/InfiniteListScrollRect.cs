@@ -489,16 +489,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 //显示范围判定
                 if (realTopPos > -viewLength)
                 {
-<<<<<<< HEAD
-                    InfiniteListData data = _datas[index];
-
-                    float viewTopPos = -(LayoutGroup.padding.top + (_height + _interval) * (index - originIndex));                 
-                    float realTopPos = viewTopPos + originLength;
-                    //显示范围判定
-                    if (realTopPos > -viewLength)
-=======
                     if (_displayElements.ContainsKey(data))
->>>>>>> fix-main
                     {
                         _displayElements[data].transform.SetSiblingIndex(index - originIndex);
                         _displayElements[data].OnUpdateData(this, index, data);
