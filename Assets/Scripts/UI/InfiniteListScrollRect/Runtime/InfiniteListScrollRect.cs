@@ -86,31 +86,40 @@ namespace UI.InfiniteListScrollRect.Runtime
             base.LateUpdate();
             if (needCheckViewLength)
             {
-                if (ListingDirection == Direction.Vertical)
-                {
-                    if (Math.Abs(viewport.rect.size.y - currentViewLength) > 1.0f)
-                    {
-                        currentViewLength = viewport.rect.size.y;
-                        _needRefresh = true;
-                    }
-                }
-                else if (ListingDirection == Direction.Horizontal)
-                {
-                    if (Math.Abs(viewport.rect.size.x - currentViewLength) > 1.0f)
-                    {
-                        currentViewLength = viewport.rect.size.x;
-                        _needRefresh = true;
-                    }
-                }
+                CheckViewRectChange();
             }
             
             if (_needRefresh)
             {
-                RefreshScrollView(); 
+                RefreshScrollContent(); 
                 _needRefresh = false;
             }
         }
 
+        /// <summary>
+        /// 显示范围发生变化
+        /// </summary>
+        /// <returns></returns>
+        private void CheckViewRectChange()
+        {
+            if (ListingDirection == Direction.Vertical)
+            {
+                if (Math.Abs(viewport.rect.size.y - currentViewLength) > 1.0f)
+                {
+                    currentViewLength = viewport.rect.size.y;
+                    _needRefresh = true;
+                }
+            }
+            else if (ListingDirection == Direction.Horizontal)
+            {
+                if (Math.Abs(viewport.rect.size.x - currentViewLength) > 1.0f)
+                {
+                    currentViewLength = viewport.rect.size.x;
+                    _needRefresh = true;
+                }
+            }
+        }
+        
         public override void OnDrag(PointerEventData eventData)
         {
             return;
@@ -179,7 +188,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 _datas.Add(data);
             }
 
-            RefreshScrollContent();
+            _needRefresh = true;
         }
         
         /// <summary>
@@ -202,7 +211,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 }
             }
 
-            RefreshScrollContent();
+            _needRefresh = true;
         }
         
         /// <summary>
@@ -224,7 +233,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 _datas.Add(data);
             }
 
-            RefreshScrollContent();
+            _needRefresh = true;
         }
         /// <summary>
         /// 清除/重设所有的无限列表数据
@@ -241,14 +250,15 @@ namespace UI.InfiniteListScrollRect.Runtime
             }
             _displayElements.Clear();
             
-            if (datas == null )
+            if (datas != null )
             {
                 for (int i = 0; i < datas.Count; i++)
                 {
                     _datas.Add(datas[i]);
                 }
             }
-            RefreshScrollContent();
+
+            _needRefresh = true;
         }
 
         /// <summary>
@@ -268,7 +278,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 }
                 _datas.RemoveAt(replaceIndex);
                 _datas.Insert(replaceIndex,data);
-                RefreshScrollContent();
+                _needRefresh = true;
             }
         }
 
@@ -291,7 +301,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 
                 _datas.RemoveAt(replaceIndex);
                 _datas.InsertRange(replaceIndex,datas);
-                RefreshScrollContent();
+                _needRefresh = true;
             }
         }
         
@@ -316,7 +326,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 }
                 _datas.RemoveRange(startIndex,count);
                 _datas.Insert(startIndex,data);
-                RefreshScrollContent();
+                _needRefresh = true;
             }
         }
         /// <summary>
@@ -342,7 +352,7 @@ namespace UI.InfiniteListScrollRect.Runtime
                 }
                 _datas.RemoveRange(startIndex,count);
                 _datas.InsertRange(startIndex,datas);
-                RefreshScrollContent();
+                _needRefresh = true;
             }
         }
 
@@ -359,7 +369,8 @@ namespace UI.InfiniteListScrollRect.Runtime
                 RecycleElement(_displayElements[data]);
                 _displayElements.Remove(data);
             }
-            RefreshScrollContent();
+
+            _needRefresh = true;
         }
         
         /// <summary>
@@ -378,7 +389,8 @@ namespace UI.InfiniteListScrollRect.Runtime
                     _displayElements.Remove(data);
                 }
             }
-            RefreshScrollContent();
+
+            _needRefresh = true;
         }
         
         /// <summary>
@@ -490,10 +502,10 @@ namespace UI.InfiniteListScrollRect.Runtime
                 {
                     InfiniteListData data = _datas[index];
 
-                    float viewP = -(index * _height + (index + 1) * _interval);
-                    float realP = viewP + originLength;
+                    float viewTopPos = -(LayoutGroup.padding.top + (_height + _interval) * (index - originIndex));                 
+                    float realTopPos = viewTopPos + originLength;
                     //显示范围判定
-                    if (realP > -viewLength)
+                    if (realTopPos > -viewLength)
                     {
                         if (_displayElements.ContainsKey(data))
                         {
@@ -601,19 +613,17 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <returns>无限列表元素</returns>
         private InfiniteListElement ExtractIdleElement()
         {
+            InfiniteListElement element;
             if (_elementsPool.Count > 0)
             {
-                InfiniteListElement element = _elementsPool.Dequeue();
-                // element.transform.SetParent(content);
-                element.gameObject.SetActive(true);
-                return element;
+                element = _elementsPool.Dequeue();
             }
             else
             {
-                InfiniteListElement element = Instantiate(ElementTemplate, content);
-                element.gameObject.SetActive(true);
-                return element.GetComponent<InfiniteListElement>();
+                element = Instantiate(ElementTemplate, content);
             }
+            element.gameObject.SetActive(true);
+            return element;
         }
          
          

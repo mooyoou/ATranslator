@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Config;
+using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using UI.InfiniteListScrollRect.Runtime;
+using UnityEngine;
 
 
 namespace System.Explorer
@@ -61,11 +64,29 @@ namespace System.Explorer
                     SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
                 }
             }
+            
+            string regexRule = ConfigSystem.ProjectConfig.RuleRegex;
+            
+            
             foreach (string fileEntry in fileEntries)
             {
-                SubExplorerNodes.Add(new ExplorerNodeData(fileEntry,false,Depth+1,this));
+                FileInfo fileInfo = new FileInfo(fileEntry);
+
+
+                if (CheckFileType(fileInfo.Name,regexRule))
+                {
+                    SubExplorerNodes.Add(new ExplorerNodeData(fileEntry,false,Depth+1,this));
+                }
             }
         
+        }
+
+        private bool CheckFileType(string fileName,string regexRule)
+        {
+            Regex regex = new Regex(regexRule);
+            Match match = regex.Match(fileName);
+            if (match.Success) return true;
+            return false;
         }
 
         private bool HideCheck(DirectoryInfo folderInfo)

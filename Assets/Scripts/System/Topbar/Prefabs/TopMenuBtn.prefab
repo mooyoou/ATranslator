@@ -387,7 +387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropdownMenuRoot: {fileID: 2240976905170250786}
-  TMPText: {fileID: 400622876758076041}
+  btnName: {fileID: 400622876758076041}
   backImg: {fileID: 5338421939470686465}
   subMenuBtnP: {fileID: 6453643058876082136, guid: 2d243317804da20408a85155e221d630, type: 3}
 --- !u!1001 &795349146920969842
