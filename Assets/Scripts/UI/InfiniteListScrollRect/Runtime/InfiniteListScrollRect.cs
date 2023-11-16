@@ -26,6 +26,13 @@ namespace UI.InfiniteListScrollRect.Runtime
         public HorizontalOrVerticalLayoutGroup LayoutGroup;
         private List<InfiniteListData> _datas  = new List<InfiniteListData>();
 
+        public List<InfiniteListData> Datas
+        {
+            get
+            {
+                return _datas;
+            }
+        }
 
         // private HashSet<InfiniteListData> _dataIndexs = new HashSet<InfiniteListData>();
         private Dictionary<InfiniteListData, InfiniteListElement> _displayElements = new Dictionary<InfiniteListData, InfiniteListElement>();
@@ -67,16 +74,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// 是否执行节点刷新标记
         /// </summary>
         private bool _needRefresh = false;
-
-        /// <summary>
-        /// 是否执行节点刷新标记
-        /// </summary>
-        private bool _dataUpdate = false;
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        private int _preOriginIndex = -1;
 
         private float currentViewLength;
         
@@ -178,7 +175,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="data">无限列表数据</param>
         public void AddData(InfiniteListData data,int insertIndex=-1)
         {
-            _dataUpdate = true;
             if(insertIndex>=0 && insertIndex<= _datas.Count)
             {
                 _datas.Insert(insertIndex,data);
@@ -198,7 +194,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="datas">无限列表数据</param>
         public void AddData<T>(List<T> datas,int insertIndex=-1) where T : InfiniteListData
         {
-            _dataUpdate = true;
             if(insertIndex>=0 && insertIndex<= _datas.Count)
             {
                 _datas.InsertRange(insertIndex,datas);
@@ -220,7 +215,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="data"></param>
         public void ResetData(InfiniteListData data = null)
         {
-            _dataUpdate = true;
             _datas.Clear();
             foreach (var element in _displayElements)
             {
@@ -242,7 +236,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <typeparam name="T"></typeparam>
         public void ResetData<T>(List<T> datas= null) where T : InfiniteListData
         {
-            _dataUpdate = true;
             _datas.Clear();
             foreach (var element in _displayElements)
             {
@@ -268,7 +261,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="replaceIndex"></param>
         public void ReplaceData(InfiniteListData data, int replaceIndex)
         {
-            _dataUpdate = true;
             if (0 <= replaceIndex && replaceIndex < _datas.Count)
             {
                 if (_displayElements.ContainsKey(_datas[replaceIndex]))
@@ -290,7 +282,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <typeparam name="T"></typeparam>
         public void ReplaceData<T>(List<T> datas,int replaceIndex) where T : InfiniteListData
         {
-            _dataUpdate = true;
             if (0 <= replaceIndex && replaceIndex < _datas.Count)
             {
                 if (_displayElements.ContainsKey(_datas[replaceIndex]))
@@ -312,7 +303,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="replaceIndex"></param>
         public void RangeReplaceData(InfiniteListData data, int startIndex ,int count)
         {
-            _dataUpdate = true;
             if (0 <= startIndex && startIndex+count <=_datas.Count)
             {
                 for (int i  = startIndex; i  < startIndex+count; i ++)
@@ -338,7 +328,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <typeparam name="T"></typeparam>
         public void RangeReplaceData<T>(List<T> datas, int startIndex ,int count) where T : InfiniteListData
         {
-            _dataUpdate = true;
             if (0 <= startIndex && startIndex+count <_datas.Count)
             {
                 for (int i  = startIndex; i  < startIndex+count; i ++)
@@ -362,7 +351,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="data">无限列表数据</param>
         public void RemoveData(InfiniteListData data)
         {
-            _dataUpdate = true;
             _datas.Remove(data);
             if (_displayElements.ContainsKey(data))
             {
@@ -379,7 +367,6 @@ namespace UI.InfiniteListScrollRect.Runtime
         /// <param name="data">无限列表数据</param>
         public void RemoveData<T>(List<T> datas) where T : InfiniteListData
         {
-            _dataUpdate = true;
             foreach (var data in datas)
             {
                 _datas.Remove(data);
@@ -490,43 +477,38 @@ namespace UI.InfiniteListScrollRect.Runtime
 
             int originIndex = Mathf.Max((int)(originLength/ (_height + _interval)),0);
             ClearInvisibleElement(originLength, viewLength);
-            if (_preOriginIndex != originIndex || _dataUpdate)
+            LayoutGroup.padding.top = (int)(_height + _interval) * originIndex + _orignRectOffset.top;
+
+            int index;
+            for (index = originIndex; index < _datas.Count; index++)
             {
-                _preOriginIndex = originIndex;
-                _dataUpdate = false;
+                InfiniteListData data = _datas[index];
 
-                LayoutGroup.padding.top = (int)(_height + _interval) * originIndex + _orignRectOffset.top;
-
-                int index;
-                for (index = originIndex; index < _datas.Count; index++)
+                float viewTopPos = -(LayoutGroup.padding.top + (_height + _interval) * (index - originIndex));                 
+                float realTopPos = viewTopPos + originLength;
+                //显示范围判定
+                if (realTopPos > -viewLength)
                 {
-                    InfiniteListData data = _datas[index];
-
-                    float viewTopPos = -(LayoutGroup.padding.top + (_height + _interval) * (index - originIndex));                 
-                    float realTopPos = viewTopPos + originLength;
-                    //显示范围判定
-                    if (realTopPos > -viewLength)
+                    if (_displayElements.ContainsKey(data))
                     {
-                        if (_displayElements.ContainsKey(data))
-                        {
-                            _displayElements[data].transform.SetSiblingIndex(index - originIndex);
-                            _displayElements[data].OnUpdateData(this, index, data);
-                            continue;
-                        }
-
-                        InfiniteListElement element = ExtractIdleElement();
-
-
-                        element.transform.SetSiblingIndex(index - originIndex);
-                        element.OnUpdateData(this, index, data);
-                        _displayElements.Add(data, element);
+                        _displayElements[data].transform.SetSiblingIndex(index - originIndex);
+                        _displayElements[data].OnUpdateData(this, index, data);
+                        continue;
                     }
-                    else
-                    {
-                        break;
-                    }
+
+                    InfiniteListElement element = ExtractIdleElement();
+
+
+                    element.transform.SetSiblingIndex(index - originIndex);
+                    element.OnUpdateData(this, index, data);
+                    _displayElements.Add(data, element);
+                }
+                else
+                {
+                    break;
                 }
             }
+            
 
             if (ListingDirection == Direction.Vertical)
             {

@@ -50,19 +50,21 @@ namespace System.Explorer
             string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
             foreach (string subdirectory in subdirectoryEntries)
             {
+                if (subdirectory == ConfigSystem.CurConfigFolderPath)
+                {
+                    continue;
+                }// 不读取配置文件夹
+                
                 if (ConfigSystem.ProjectConfig.SkipHideFolder)
                 {
-                    
                     DirectoryInfo folderInfo = new DirectoryInfo(subdirectory);
-
-                    if (HideCheck(folderInfo) //隐藏文件夹跳过
-                        || subdirectory == ConfigSystem.CurConfigFolderPath)// 不读取配置文件夹
+                    if (HideCheck(folderInfo))//隐藏文件夹跳过
                     {
                         continue;
                     }
-
-                    SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
                 }
+                
+                SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
             }
             
             string regexRule = ConfigSystem.ProjectConfig.RuleRegex;
@@ -91,10 +93,7 @@ namespace System.Explorer
 
         private bool HideCheck(DirectoryInfo folderInfo)
         {
-            bool isHidden = ((folderInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden);
-            if (ConfigSystem.ProjectConfig.SkipHideFolder && isHidden) return true;
-
-            return false;
+            return (folderInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden;
         }
         
     }

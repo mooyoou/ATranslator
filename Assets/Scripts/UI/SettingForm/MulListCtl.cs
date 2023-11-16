@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
 using UI.InfiniteListScrollRect.Runtime;
 using UnityEngine;
@@ -74,6 +73,7 @@ namespace UI.SettingForm
         {
             if (_ruleList.TryGetValue(_curChooseRule, out MulUnitData mulUnitData))
             {
+                _ruleList.Remove(_curChooseRule);
                 infiniteListScrollRect.RemoveData(mulUnitData);
                 delButton.interactable = false;
                 _curChooseRule = null;

@@ -1228,7 +1228,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4524296021841789538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
       propertyPath: m_text
-      value: "\u662F\u5426\u8BFB\u53D6\u9690\u85CF\u6587\u4EF6\u5939"
+      value: "\u662F\u5426\u5FFD\u7565\u9690\u85CF\u6587\u4EF6\u5939"
       objectReference: {fileID: 0}
     - target: {fileID: 4883958732925845299, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
       propertyPath: m_Padding.m_Left
