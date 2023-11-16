@@ -39,8 +39,16 @@ namespace System.Config
         
         private List<string> _loadRules = new List<string>()
         {
-            "*.txt",
-            "*.word"
+            "\\.txt$",
+            "\\.word$",
+            "\\.md$",
+            "\\.html$",
+            "\\.xml$",
+            "\\.json$",
+            "\\.csv$",
+            "\\.log$",
+            "\\.cfg$",
+            "\\.ini$"
         };
         public List<string> LoadRules
         {
@@ -49,6 +57,27 @@ namespace System.Config
                 return _loadRules;
             }
         }
+
+        [JsonIgnore]
+        public string RuleRegex
+        {
+            get
+            {
+                string regexRule = "";
+                for (int i = 0; i <  _loadRules.Count; i++)
+                {
+                    regexRule += _loadRules[i];
+                    if (i != _loadRules.Count - 1)
+                    {
+                        regexRule += "|";
+                    }
+                }
+
+                return regexRule;
+            }
+        }
+        
+        
     }
     
     public static class ConfigSystem
@@ -199,12 +228,12 @@ namespace System.Config
                 string configfilePath = Path.Combine(configFolderPath, "config");
 
                 string configfile = File.ReadAllText(configfilePath);
-                _projectConfig = JsonConvert.DeserializeObject<ProjectConfig>(configfile);
-
                 _curConfigFolderPath = configFolderPath;
+                ProjectConfig = JsonConvert.DeserializeObject<ProjectConfig>(configfile);
             }
             catch (Exception e)
             {
+                Debug.LogError(e);
                 return false;
             }
             return true;

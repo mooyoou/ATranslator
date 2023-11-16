@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace System.Topbar
@@ -9,7 +11,8 @@ namespace System.Topbar
     public class SubMenuBtn : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
     {
         [SerializeField]
-        private TMP_Text TMPText;
+        private TMP_Text btnName;
+
         [SerializeField]
         private Image backImg;
         public Image rightRow;
@@ -18,18 +21,46 @@ namespace System.Topbar
 
         private SubMenuBtn _subMenuBtnP;
         
-        private List<SubMenuBtn> _subMenuBtns = new List<SubMenuBtn>();
+
         private bool _isSubMenuRoot;
         private MenuNode _menuNode;
+        public MenuNode MenuNode
+        {
+            get
+            {
+                return _menuNode;
+            }
+        }
+        
+        
+        private List<SubMenuBtn> _subMenuBtns = new List<SubMenuBtn>();
+
+        public List<SubMenuBtn> SubMenuBtns
+        {
+            get
+            {
+                return _subMenuBtns;
+            }
+        }
+
+
         public void Init(MenuNode menuNode,SubMenuBtn subMenuBtnP)
         {
             _subMenuBtnP = subMenuBtnP;
-            TMPText.text = menuNode.MenuName;
+            btnName.text = menuNode.MenuName;
             _menuNode = menuNode;
+
+            btnName.color = _menuNode.Interactable
+                ? new Color(0.8f, 0.8f, 0.8f, 1.0f)
+                : new Color(0.2f, 0.2f, 0.2f, 1.0f); 
+            
             if (menuNode.SubNode.Count!=0)
             {
                 InitSubMenu(menuNode.SubNode);
             }
+
+            RegisterEvent();
+
         }
         
         /// <summary>
@@ -48,8 +79,26 @@ namespace System.Topbar
             }
         }
 
+        public void RegisterEvent()
+        {
+        }
+
+        private void OnEnable()
+        {
+            UpdateBtnState();
+        }
+        
+        public void UpdateBtnState()
+        {
+            btnName.color = _menuNode.Interactable
+                ? new Color(0.8f, 0.8f, 0.8f, 1.0f)
+                : new Color(0.4f, 0.4f, 0.4f, 1.0f);
+        }
+        
+        
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if(!_menuNode.Interactable)return;
             backImg.color = new Color(0.3f, 0.4f, 0.5f, 1.0f);
             if(_isSubMenuRoot){
                 subMenuRoot.gameObject.SetActive(true);
@@ -58,6 +107,7 @@ namespace System.Topbar
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if(!_menuNode.Interactable)return;
             backImg.color = new Color(0.3f, 0.4f, 0.5f, 0.0f);
             if(_isSubMenuRoot){
                 subMenuRoot.gameObject.SetActive(false);
@@ -66,6 +116,7 @@ namespace System.Topbar
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if(!_menuNode.Interactable)return;
             if (!_isSubMenuRoot)
             {
                 GlobalSubscribeSys.Invoke(_menuNode.EventName);
@@ -80,7 +131,6 @@ namespace System.Topbar
             foreach (var subMenuBtn in _subMenuBtns)
             {
                 subMenuBtn.CloseAllSubMenu();
-
             }
         }
         

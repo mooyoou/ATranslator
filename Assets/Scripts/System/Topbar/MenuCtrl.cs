@@ -1,31 +1,12 @@
 using System.Collections.Generic;
+using System.Config;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering.LookDev;
 
 namespace System.Topbar
 {
-    public class MenuNode
-    {
-        public MenuNode(string name,string eventName = null ,List<MenuNode> subMenus=null)
-        {
-            MenuName = name;
-            EventName = string.IsNullOrEmpty(eventName)?name:eventName ;
-            SubNode = new List<MenuNode>();
-            if (subMenus != null)
-            {
-                SubNode = new List<MenuNode>();
-                foreach (var node in subMenus)
-                {
-                    SubNode.Add(node);
-                }
-            }
 
-        }
-        public string MenuName;
-        public string EventName;
-        public List<MenuNode> SubNode;
-    }
     public class MenuCtrl : MonoBehaviour ,IPointerClickHandler,IPointerMoveHandler
     {
         [SerializeField]
@@ -41,6 +22,7 @@ namespace System.Topbar
         private List<TopMenuBtn> _topMenuObjs;
         private void Awake()
         {
+            RegisterEvents();
             InitMenus();
             GlobalSubscribeSys.Subscribe("topmenu_close", (object[] objects) =>
             {
@@ -52,6 +34,54 @@ namespace System.Topbar
                 ResetMenu();
             });
         }
+
+        private void RegisterEvents()
+        {
+            
+            //项目设置激活
+            ConfigSystem.ConfigUpdate += ((sender, args) =>
+            {
+                if(!string.IsNullOrEmpty(ConfigSystem.CurConfigFolderPath))
+                {
+                    var TargetMenuNode = GetSubMenuNode("ProjectSettings");
+                    if (TargetMenuNode != null)
+                    {
+                        TargetMenuNode.Interactable = true;
+                    }
+                }
+            });
+
+
+        }
+
+        private MenuNode GetSubMenuNode(string menuName)
+        {
+            foreach (var topMenu in _topMenuObjs)
+            {
+                foreach (var subBtn in topMenu.SubMenuBtns)
+                {
+                    var targetBtn = SearchSubMenu(subBtn.MenuNode, menuName);
+                    if (targetBtn != null) return targetBtn;
+                }
+            }
+
+            return null;
+        }
+
+        private MenuNode SearchSubMenu(MenuNode subMenuNode,string menuName)
+        {
+            if (subMenuNode.MenuName == menuName) return subMenuNode;
+            foreach (var btn in subMenuNode.SubNode)
+            {
+                var tagetNode = SearchSubMenu(btn, menuName);
+                if (tagetNode != null) return tagetNode;
+            }
+            return null;
+        }
+        
+        
+        
+        
         private void InitMenus()
         {
 
@@ -70,35 +100,7 @@ namespace System.Topbar
         /// </summary>
         private void RegeisterMenus()
         {
-            _topMenus= new Dictionary<string, List<MenuNode>>();
-        
-            _topMenus.Add("<u>F</u>ile",new List<MenuNode>()
-            {
-                new MenuNode("OpenProject","open_new_project"),
-                new MenuNode("Settings",null,new List<MenuNode>()
-                {
-                    new MenuNode("ProjectSettings","open_project_settings"),
-                    new MenuNode("GlobalSettings"),
-                    new MenuNode("Open2-test3",null,new List<MenuNode>()
-                    {
-                        new MenuNode("Open2-test4"),
-                        new MenuNode("Open2-test5")
-                    })
-                }), 
-                new MenuNode("Open3")
-            });
-        
-            _topMenus.Add("<u>E</u>dit",new List<MenuNode>()
-            {
-                new MenuNode("Setting")
-            });
-        
-            _topMenus.Add("<u>T</u>ests",new List<MenuNode>()
-            {
-                new MenuNode("Debug","open_debug_view"),
-                new MenuNode("Debug2"),
-                new MenuNode("Debug3")
-            });
+            _topMenus = MenuConfig.TopMenus;
         }
         private void TryOpenMenu(Transform transform)
         {  
