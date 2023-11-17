@@ -130,7 +130,7 @@ namespace System.Config
 
         private static void InvokeConfigUpdateEvent()
         {
-            ConfigUpdate?.Invoke(typeof(This),null);
+            ConfigUpdate?.Invoke(null,null);
         }
         
         /// <summary>

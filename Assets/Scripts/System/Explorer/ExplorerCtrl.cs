@@ -36,8 +36,21 @@ public class ExplorerCtrl : MonoBehaviour
             } 
             StopCoroutine(_initNodesCoroutine);
         });
-
+        GlobalSubscribeSys.Subscribe("refresh_explorer_list", (objects) =>
+        {
+            RefreshExplorerList();
+        });
+        
+        
     }
+
+    private void RefreshExplorerList()
+    {
+        _tipId = OpenTip(_rootExplorerNode.FullPath);
+        ConfigSystem.AddOpenProjectHistory(_rootExplorerNode.FullPath);
+        _initNodesCoroutine = StartCoroutine(InitNodesAsync(_rootExplorerNode.FullPath));
+    }
+    
     
     /// <summary>
     /// 顶部菜单栏-打开（新项目）

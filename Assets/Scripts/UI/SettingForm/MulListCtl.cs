@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -14,17 +15,19 @@ namespace UI.SettingForm
         [SerializeField] private InfiniteListScrollRect.Runtime.InfiniteListScrollRect infiniteListScrollRect;
         [SerializeField] private Button delButton;
         
+        [SerializeField] private SettingForm settingForm;
+        
         
         private Dictionary<string,MulUnitData> _ruleList = new Dictionary<string, MulUnitData>();
 
-        public Dictionary<string, MulUnitData> RuleList
+        public List<string> RuleList
         {
             get
             {
-                return _ruleList;
+                return _ruleList.Keys.ToList();
             }
         }
-        
+
         private string _curChooseRule;
 
 
@@ -63,6 +66,7 @@ namespace UI.SettingForm
                 (infiniteListElement as MulListBtn)?.PlayTipAni();
             }
             inputField.text = null;
+            settingForm.SetSaveBtn(true);
         }
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace UI.SettingForm
                 delButton.interactable = false;
                 _curChooseRule = null;
             }
+            settingForm.SetSaveBtn(true);
         }
 
         /// <summary>

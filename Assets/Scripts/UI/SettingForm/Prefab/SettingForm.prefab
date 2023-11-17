@@ -1130,6 +1130,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6684593409868394614}
     m_Modifications:
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 6600498113817170248}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetSaveBtn
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UI.SettingForm.SettingForm, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460000163711913538, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1946970806337489439, guid: 3ad93a756fa496044996e6ac6b94ed2d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1525,6 +1557,10 @@ PrefabInstance:
       propertyPath: m_ChildForceExpandWidth
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1499409402937866215, guid: 1cd2bff21e651204f8a288ec1e277140, type: 3}
+      propertyPath: settingForm
+      value: 
+      objectReference: {fileID: 6600498113817170248}
     - target: {fileID: 3828476661106718853, guid: 1cd2bff21e651204f8a288ec1e277140, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2161,6 +2197,7 @@ MonoBehaviour:
   ruleList: {fileID: 3149690847404127976}
   skipHideFolderBtn: {fileID: 4450857611302154465}
   saveBtn: {fileID: 112268031497063502}
+  saveBtnText: {fileID: 4408652670961600843}
   cancelBtn: {fileID: 7732154920255975990}
 --- !u!224 &6955852192705315544 stripped
 RectTransform:
