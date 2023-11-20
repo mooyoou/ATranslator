@@ -12,7 +12,7 @@ namespace System.Topbar
         [SerializeField]
         private TMP_Text btnName;
         [SerializeField]
-        private Image backImg;
+        private RawImage backImg;
         [SerializeField]
         private SubMenuBtn subMenuBtnP;
         

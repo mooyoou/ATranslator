@@ -3,6 +3,7 @@ using TMPro;
 using UI.InfiniteListScrollRect;
 using UI.InfiniteListScrollRect.Runtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
@@ -25,6 +26,10 @@ namespace System.Explorer
 
         private int _btnIndex;
         private InfiniteListScrollRect _infiniteListScrollRect; 
+        private float _lastClickTime = 0f;
+        private readonly float _doubleClickDelay = 0.3f;
+        
+        
         /// <summary>
         /// 更新显示数据
         /// </summary>
@@ -120,14 +125,21 @@ namespace System.Explorer
                 listDatas.Add(curNode);
             }
 
+            
+            
             return listDatas;
         }
-        
-        
-        public void OnNodeClick()
+
+        public void OnBtnClick()
         {
-
+            if (!ExplorerNode.IsFolder)
+            {
+                if (Time.time - _lastClickTime < _doubleClickDelay)
+                {
+                   GlobalSubscribeSys.Invoke("choose_open_file",ExplorerNode);
+                }
+                _lastClickTime = Time.time;
+            }
         }
-
     }
 }

@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 public class TipForm : MonoBehaviour
 {
-    [SerializeField] private Image mask;
+    [SerializeField] private RawImage mask;
     [SerializeField] private Animation maskAni;
     [SerializeField] private TMP_Text tipTitle;
     [SerializeField] private TMP_Text tipInfo;

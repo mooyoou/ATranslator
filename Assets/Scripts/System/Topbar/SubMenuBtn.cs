@@ -14,8 +14,8 @@ namespace System.Topbar
         private TMP_Text btnName;
 
         [SerializeField]
-        private Image backImg;
-        public Image rightRow;
+        private RawImage backImg;
+        public RawImage rightRow;
         [SerializeField]
         private Transform subMenuRoot;
 
