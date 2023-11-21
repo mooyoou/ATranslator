@@ -1,29 +1,29 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
-using UnityEngine;
 
-public class MenuNode
+namespace System.Topbar
 {
-    public MenuNode(string name, string eventName = null, List<MenuNode> subMenus = null,bool interactable = true)
+    public class MenuNode
     {
-        MenuName = name;
-        EventName = string.IsNullOrEmpty(eventName) ? name : eventName;
-        SubNode = new List<MenuNode>();
-        if (subMenus != null)
+        public MenuNode(string name, string eventName = null, List<MenuNode> subMenus = null,bool interactable = true)
         {
+            MenuName = name;
+            EventName = string.IsNullOrEmpty(eventName) ? name : eventName;
             SubNode = new List<MenuNode>();
-            foreach (var node in subMenus)
+            if (subMenus != null)
             {
-                SubNode.Add(node);
+                SubNode = new List<MenuNode>();
+                foreach (var node in subMenus)
+                {
+                    SubNode.Add(node);
+                }
             }
+
+            Interactable = interactable;
         }
 
-        Interactable = interactable;
+        public string MenuName;
+        public string EventName;
+        public List<MenuNode> SubNode;
+        public bool Interactable;
     }
-
-    public string MenuName;
-    public string EventName;
-    public List<MenuNode> SubNode;
-    public bool Interactable;
 }

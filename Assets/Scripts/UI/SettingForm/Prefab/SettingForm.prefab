@@ -452,7 +452,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4324037310055958667}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.16495983
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1924,7 +1924,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1933,14 +1933,14 @@ PrefabInstance:
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 6600498113817170248}
+      objectReference: {fileID: 2906564014571721922}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnCancleBtnClick
       objectReference: {fileID: 0}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: OnCancleBtnClick
+      value: SetActive
       objectReference: {fileID: 0}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -1948,7 +1948,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4562989809652936636, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: UI.SettingForm.SettingForm, Assembly-CSharp
+      value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5146855629684429854, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
       propertyPath: m_Pivot.x
@@ -2084,6 +2084,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6600498113817170248}
   m_SourcePrefab: {fileID: 100100000, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
+--- !u!1 &2906564014571721922 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8001851800508641718, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
+  m_PrefabInstance: {fileID: 5141555255277266292}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5374937032676227685 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 994703446157958929, guid: 56bdc4cb3f84623408b235e96277070f, type: 3}
