@@ -51,7 +51,7 @@ namespace UI.SettingForm
       {
          _projectConfig = ConfigSystem.ProjectConfig;
          skipHideFolderBtn.isOn = _projectConfig.SkipHideFolder;
-         ruleList.InitRuleList(_projectConfig.LoadRules.ToList());
+         ruleList.InitRuleList(_projectConfig.FileMatchRules.ToList());
       }
 
 

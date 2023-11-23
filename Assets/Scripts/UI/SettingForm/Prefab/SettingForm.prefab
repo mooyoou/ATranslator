@@ -1530,6 +1530,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1499409402937866215, guid: 1cd2bff21e651204f8a288ec1e277140, type: 3}
+      propertyPath: settingForm
+      value: 
+      objectReference: {fileID: 6600498113817170248}
     - target: {fileID: 3815232063642522412, guid: 1cd2bff21e651204f8a288ec1e277140, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

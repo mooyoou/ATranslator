@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,21 +11,21 @@ namespace System.Config
 {
     public class ProjectConfig
     {
-        public ProjectConfig(List<string> loadRules = null)
+        public ProjectConfig(List<string> fileMatchRules = null)
         {
-            if(loadRules!=null)
+            if(fileMatchRules!=null)
             {
-                _loadRules = loadRules;
+                _fileMatchRules = fileMatchRules;
             }
         }
         
         [JsonConstructor]
-        public ProjectConfig(bool skipHideFolder, List<string> loadRules = null)
+        public ProjectConfig(bool skipHideFolder, List<string> fileMatchRules = null)
         {
             _skipHideFolder = skipHideFolder;
-            if(loadRules!=null)
+            if(fileMatchRules!=null)
             {
-                _loadRules = loadRules;
+                _fileMatchRules = fileMatchRules;
             }
         }
 
@@ -37,7 +38,7 @@ namespace System.Config
             }
         }
         
-        private List<string> _loadRules = new List<string>()
+        private List<string> _fileMatchRules = new List<string>()
         {
             "\\.txt$",
             "\\.word$",
@@ -50,24 +51,91 @@ namespace System.Config
             "\\.cfg$",
             "\\.ini$"
         };
-        public List<string> LoadRules
+        public List<string> FileMatchRules
         {
             get
             {
-                return _loadRules;
+                return _fileMatchRules;
             }
         }
 
+        
+        /// <summary>
+        /// 全局适用的可翻译文本匹配规则
+        /// </summary>
+        private List<string> _globalTextMatchRules = new List<string>()
+        {
+            "\\.txt$",
+            "\\.word$",
+            "\\.md$",
+            "\\.html$",
+            "\\.xml$",
+            "\\.json$",
+            "\\.csv$",
+            "\\.log$",
+            "\\.cfg$",
+            "\\.ini$"
+        };
+        
+        /// <summary>
+        /// 特殊文件的专用可翻译文本匹配规则
+        /// </summary>
+        private Dictionary<string,List<string>> _specialTextMatchRules = new Dictionary<string,List<string>>()
+        {
+            { "\\.ERB$",new List<string>()
+                {
+                    "^[\\s]*PRINT[^\\s]*[\\s]+(.+)$",
+                    "^[\\s]*DATA[^\\s]*[\\s]+(.+)$",
+                    "^[\\s]*LOCAL[S]?\\s?\\+?\\=\\s?(.+)$",
+                    "^[\\s]*CALL[\\s]PRINT[^@]*@(.+)$",
+                    "^[\\s]*CALL[\\s]KPRINT[\\w\\s,\"]+\\\"(.+)\\$",
+                    "^[\\s]*CALL[\\s]COLOR_PRINT[\\w\\s@(,]?\\((.+)\\)$",
+                    "^[\\s]*CALL[\\s]ASK[\\w\\s@,]*\\((.+)\\)$",
+                    "^[\\s]*CALL[\\s]+PRINT_ADD_EXP\\(.+,[\\s]*\"(.+)\\\"[\\s]*.+\\)$"
+                } 
+            },
+        };
+
+
+        /// <summary>
+        /// 获取文本匹配规则
+        /// </summary>
+        /// <param name="fileName">要匹配的文件名（可支持单文件名或者全路径模式切换）</param>
+        /// <returns></returns>
+        public string GetTextMatchRegex(string fileName= "")
+        {
+            string regexRule = "";
+            for (int i = 0; i <  _fileMatchRules.Count; i++)
+            {
+                regexRule += _fileMatchRules[i];
+                if (i != _fileMatchRules.Count - 1)
+                {
+                    regexRule += "|";
+                }
+            }
+            Regex regex;
+            foreach (var rule in _specialTextMatchRules)
+            {
+                regex = new Regex(rule.Key);
+                Match match = regex.Match(fileName);
+                if (match.Success)
+                {
+                    regexRule += $"|{rule.Value}";
+                }
+            }
+            return regexRule;
+        }
+        
         [JsonIgnore]
-        public string RuleRegex
+        public string FIleMatchRegex
         {
             get
             {
                 string regexRule = "";
-                for (int i = 0; i <  _loadRules.Count; i++)
+                for (int i = 0; i <  _fileMatchRules.Count; i++)
                 {
-                    regexRule += _loadRules[i];
-                    if (i != _loadRules.Count - 1)
+                    regexRule += _fileMatchRules[i];
+                    if (i != _fileMatchRules.Count - 1)
                     {
                         regexRule += "|";
                     }

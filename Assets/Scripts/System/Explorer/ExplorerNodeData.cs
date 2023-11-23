@@ -67,7 +67,7 @@ namespace System.Explorer
                 SubExplorerNodes.Add(new ExplorerNodeData(subdirectory,true,Depth+1,this));
             }
             
-            string regexRule = ConfigSystem.ProjectConfig.RuleRegex;
+            string regexRule = ConfigSystem.ProjectConfig.FIleMatchRegex;
             
             
             foreach (string fileEntry in fileEntries)
