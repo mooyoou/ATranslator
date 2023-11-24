@@ -1,5 +1,7 @@
 using TMPro;
+using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace System.WorkSpace
 {
@@ -12,9 +14,30 @@ namespace System.WorkSpace
         [SerializeField] private TMP_Text marchNum;
     
         private TextLineData _textLineData;
-
-        public void UpdateLine(TextLineData textLineData)
+        private Action RefreshLines;
+        
+        private float previousPreferredHeight;
+        private void OnEnable()
         {
+            previousPreferredHeight = LayoutUtility.GetPreferredHeight((RectTransform)transform);
+        }
+        
+        private void Update()
+        {
+            var newhight = LayoutUtility.GetPreferredHeight((RectTransform)transform);
+            if (Mathf.Abs(newhight - previousPreferredHeight) > 1)
+            {
+                previousPreferredHeight = newhight;
+                if (RefreshLines != null)
+                {
+                    RefreshLines();
+                }
+            };
+        }
+
+        public void UpdateLine(TextLineData textLineData,Action refresh = null)
+        {
+            RefreshLines = refresh;
             _textLineData = textLineData;
             
             if (textLineData.IsRawText)

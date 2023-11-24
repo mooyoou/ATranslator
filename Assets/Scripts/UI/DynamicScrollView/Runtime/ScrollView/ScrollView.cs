@@ -51,6 +51,8 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
         [SerializeField]
         private int poolSize;
 
+        private bool autoWidth = true;
+        
         // status
         private bool initialized = false;
         /// <summary>
@@ -237,6 +239,12 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
             if (firstItem.rectDirty)
             {
                 Vector2 firstSize = this.GetItemSize(0);
+                if (autoWidth)
+                {
+                    firstSize.x = 0;
+                }
+                
+                
                 firstItem.rect = CreateWithLeftTopAndSize(Vector2.zero, firstSize);
                 firstItem.rectDirty = false;
             }
@@ -261,6 +269,10 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
             for (var i = nearestClean + 1; i <= index; i++)
             {
                 size = this.GetItemSize(i);
+                if (autoWidth)
+                {
+                    size.x = 0;
+                }
                 this.managedItems[i].rect = CreateWithLeftTopAndSize(curPos, size);
                 this.managedItems[i].rectDirty = false;
                 this.MovePos(ref curPos, size);
@@ -626,6 +638,13 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
             }
 
             this.EnsureItemRect(index);
+            if (autoWidth)
+            {
+                var fixRect = new Rect(managedItems[index].rect.position,new Vector2(1,managedItems[index].rect.size.y));
+                
+                return new Rect(this.refRect.position - this.content.anchoredPosition, this.refRect.size).Overlaps(fixRect);
+            }
+            
             return new Rect(this.refRect.position - this.content.anchoredPosition, this.refRect.size).Overlaps(this.managedItems[index].rect);
         }
 
@@ -683,7 +702,7 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
                     itemObj.transform.SetParent(poolNode.transform, false);
 
                     item.anchorMin = Vector2.up;
-                    item.anchorMax = Vector2.up;
+                    item.anchorMax = new Vector2(1, 1);
                     item.pivot = Vector2.zero;
 
                     itemObj.SetActive(true);
@@ -765,8 +784,8 @@ namespace UI.DynamicScrollView.Runtime.ScrollView
             this.horizontal = dir == 0;
 
             this.content.pivot = Vector2.up;
-            this.content.anchorMin = Vector2.up;
-            this.content.anchorMax = Vector2.up;
+            // this.content.anchorMin = Vector2.up;
+            // this.content.anchorMax = Vector2.up;
             this.content.anchoredPosition = Vector2.zero;
 
             this.InitPool();

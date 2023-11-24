@@ -59,22 +59,22 @@ public class TextLineData
             }
         }
         
-        private int _endPos;
+        private int _length;
 
-        public int EndPos
+        public int Length
         {
             get
             {
-                return _endPos;
+                return _length;
             }
         }
 
-        public MatchPos(int beginPos, int endPos)
+        public MatchPos(int beginPos, int length)
         {
             beginPos = Mathf.Max(0, beginPos);
-            endPos = Mathf.Max(beginPos, endPos);
+            length = Mathf.Max(0, length);
             _beginPos = beginPos;
-            _endPos = endPos;
+            _length = length;
         }
     }
     

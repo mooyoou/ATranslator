@@ -65,16 +65,8 @@ namespace System.Config
         /// </summary>
         private List<string> _globalTextMatchRules = new List<string>()
         {
-            "\\.txt$",
-            "\\.word$",
-            "\\.md$",
-            "\\.html$",
-            "\\.xml$",
-            "\\.json$",
-            "\\.csv$",
-            "\\.log$",
-            "\\.cfg$",
-            "\\.ini$"
+            ";(.+)",
+            "//(.+)"
         };
         
         /// <summary>
@@ -104,23 +96,15 @@ namespace System.Config
         /// <returns></returns>
         public string GetTextMatchRegex(string fileName= "")
         {
-            string regexRule = "";
-            for (int i = 0; i <  _fileMatchRules.Count; i++)
-            {
-                regexRule += _fileMatchRules[i];
-                if (i != _fileMatchRules.Count - 1)
-                {
-                    regexRule += "|";
-                }
-            }
-            Regex regex;
+            string regexRule = string.Join("|", _globalTextMatchRules);
+            
             foreach (var rule in _specialTextMatchRules)
             {
-                regex = new Regex(rule.Key);
+                Regex regex = new Regex(rule.Key);
                 Match match = regex.Match(fileName);
-                if (match.Success)
+                if (match.Success && rule.Value.Count>0)
                 {
-                    regexRule += $"|{rule.Value}";
+                    regexRule += $"|{string.Join("|", rule.Value)}";
                 }
             }
             return regexRule;
@@ -131,16 +115,7 @@ namespace System.Config
         {
             get
             {
-                string regexRule = "";
-                for (int i = 0; i <  _fileMatchRules.Count; i++)
-                {
-                    regexRule += _fileMatchRules[i];
-                    if (i != _fileMatchRules.Count - 1)
-                    {
-                        regexRule += "|";
-                    }
-                }
-
+                string regexRule = string.Join("|", _fileMatchRules);
                 return regexRule;
             }
         }
@@ -238,15 +213,7 @@ namespace System.Config
                 _openProjectHistory.RemoveRange(10,_openProjectHistory.Count-10);
             }
 
-            string value = "";
-            for (int i = 0; i < _openProjectHistory.Count; i++)
-            {
-                value += _openProjectHistory[i];
-                if (i != _openProjectHistory.Count - 1)
-                {
-                    value += ",";
-                }
-            }
+            string value = string.Join(",", _openProjectHistory);
             PlayerPrefs.SetString("OpenProjectHistory", value);
             PlayerPrefs.Save(); // 保存操作是异步的，使用Save方法确保立即保存
             
