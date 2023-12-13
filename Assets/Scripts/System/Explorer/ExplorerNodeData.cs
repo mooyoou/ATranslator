@@ -22,7 +22,7 @@ namespace System.Explorer
 
         public bool IsExpand;
         
-        public ExplorerNodeData(string fullPath,bool isFolder, int depth = 0, ExplorerNodeData fnode = null)
+        public ExplorerNodeData(string fullPath,bool isFolder, int depth = 0, ExplorerNodeData fnode = null,bool RefreshImmediately = true)
         {
             if (!Directory.Exists(fullPath) && !File.Exists(fullPath))
             {
@@ -33,7 +33,7 @@ namespace System.Explorer
             Depth = depth;
             FatherExplorerNode = fnode;
             IsFolder = isFolder;
-            if (isFolder)
+            if (isFolder && RefreshImmediately)
             {
                 UpdateSubNodes();
             }
@@ -68,24 +68,30 @@ namespace System.Explorer
             }
             
             string regexRule = ConfigSystem.ProjectConfig.FIleMatchRegex;
-            
-            
             foreach (string fileEntry in fileEntries)
             {
                 FileInfo fileInfo = new FileInfo(fileEntry);
 
-
-                if (CheckFileType(fileInfo.Name,regexRule))
+                if (ConfigSystem.ProjectConfig.DisplaySpecificFileTypes && !string.IsNullOrEmpty(regexRule))
+                {
+                    if (CheckFileType(fileInfo.Name,regexRule))
+                    {
+                        SubExplorerNodes.Add(new ExplorerNodeData(fileEntry,false,Depth+1,this));
+                    }
+                }
+                else
                 {
                     SubExplorerNodes.Add(new ExplorerNodeData(fileEntry,false,Depth+1,this));
                 }
+
             }
         
         }
 
+        //TODO:regex整理为工具类
         private bool CheckFileType(string fileName,string regexRule)
         {
-            Regex regex = new Regex(regexRule);
+            Regex regex = new Regex(regexRule, RegexOptions.Singleline);
             Match match = regex.Match(fileName);
             if (match.Success) return true;
             return false;

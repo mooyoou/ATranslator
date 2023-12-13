@@ -16,7 +16,7 @@ public class ExplorerCtrl : MonoBehaviour
     private ExplorerNodeData _newRootExplorerNode;
     private int _tipId;
     private Coroutine _initNodesCoroutine;
-    
+
     private void Awake()
     {
         RegisterEvent();
@@ -32,26 +32,21 @@ public class ExplorerCtrl : MonoBehaviour
         {
             if (_rootExplorerNode != _newRootExplorerNode)
             {
-                explorerScrollRect.ResetData(_rootExplorerNode);
+                ConfigSystem.InitProject(_rootExplorerNode.FullPath);//恢复旧的配置
             } 
             StopCoroutine(_initNodesCoroutine);
         });
-        GlobalSubscribeSys.Subscribe("refresh_explorer_list", (objects) =>
+
+        ConfigSystem.ConfigUpdate += ((sender, args) =>
         {
-            RefreshExplorerList();
+            RefreshExplorerList(args);
         });
+
         
         
     }
 
-    private void RefreshExplorerList()
-    {
-        _tipId = OpenTip(_rootExplorerNode.FullPath);
-        ConfigSystem.AddOpenProjectHistory(_rootExplorerNode.FullPath);
-        _initNodesCoroutine = StartCoroutine(InitNodesAsync(_rootExplorerNode.FullPath));
-    }
-    
-    
+        
     /// <summary>
     /// 顶部菜单栏-打开（新项目）
     /// </summary>
@@ -64,19 +59,22 @@ public class ExplorerCtrl : MonoBehaviour
             lastOpenHistory = ConfigSystem.OpenProjectHistories[0];
         }
         string projectPath = Misc.OpenFolderBrowserDialog(lastOpenHistory);
-        if(string.IsNullOrEmpty(projectPath)) return;
+        ConfigSystem.InitProject(projectPath);//读取 或 建立 配置文件
+    }
+
+    //配置更新事件
+    private void RefreshExplorerList(string projectPath)
+    {
         _tipId = OpenTip(projectPath);
         ConfigSystem.AddOpenProjectHistory(projectPath);
         _initNodesCoroutine = StartCoroutine(InitNodesAsync(projectPath));
-
     }
-
+    
     private  IEnumerator InitNodesAsync(string rootPath)
     {
         Task initTreeTask = Task.Run(() =>
         {
-            ConfigSystem.InitProject(rootPath);
-            _newRootExplorerNode = new ExplorerNodeData(rootPath,true,0,null); //建立文件结构树
+            _newRootExplorerNode = new ExplorerNodeData(rootPath,true,0,null); //建立完整文件结构树
         });
         yield return new WaitUntil(() => initTreeTask.IsCompleted);
         
@@ -85,6 +83,7 @@ public class ExplorerCtrl : MonoBehaviour
         explorerScrollRect.ResetData(_newRootExplorerNode);
         _rootExplorerNode = _newRootExplorerNode;
         CloseTip();
+        _newRootExplorerNode = null;
     }
 
     /// <summary>

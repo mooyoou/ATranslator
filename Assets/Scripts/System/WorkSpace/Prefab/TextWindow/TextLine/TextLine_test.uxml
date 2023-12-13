@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/System/WorkSpace/Prefab/TextWindow/TextLine/TextLine.uss?fileID=7433441132597879392&amp;guid=f654871f654e6204cbe13d0e4abbf3d0&amp;type=3#TextLine" />
+    <System.WorkSpace.TextLine />
+</ui:UXML>

@@ -1,11 +1,7 @@
-using System;
 using System.Config;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI.SettingForm
@@ -14,6 +10,7 @@ namespace UI.SettingForm
    {
       [SerializeField] private MulListCtl ruleList;
       [SerializeField] private Toggle skipHideFolderBtn;
+      [SerializeField] private Toggle displaySpecificFileTypesBtn;
       [SerializeField] private Button saveBtn;
       [SerializeField] private TMP_Text saveBtnText; 
       [SerializeField] private Button cancelBtn;
@@ -24,9 +21,9 @@ namespace UI.SettingForm
       {
          var loadRules = ruleList.RuleList;
          var skipHideFolder = skipHideFolderBtn.isOn;
-         _projectConfig = new ProjectConfig(skipHideFolder, loadRules);
+         var onlyShowFileSpecify = displaySpecificFileTypesBtn.isOn;
+         _projectConfig = new ProjectConfig(skipHideFolder,onlyShowFileSpecify, loadRules );
          ConfigSystem.ProjectConfig = _projectConfig;
-         GlobalSubscribeSys.Invoke("refresh_explorer_list");
          gameObject.SetActive(false);
       }
 
@@ -51,6 +48,7 @@ namespace UI.SettingForm
       {
          _projectConfig = ConfigSystem.ProjectConfig;
          skipHideFolderBtn.isOn = _projectConfig.SkipHideFolder;
+         displaySpecificFileTypesBtn.isOn = _projectConfig.DisplaySpecificFileTypes;
          ruleList.InitRuleList(_projectConfig.FileMatchRules.ToList());
       }
 

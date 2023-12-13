@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 namespace System.Config
@@ -20,9 +21,10 @@ namespace System.Config
         }
         
         [JsonConstructor]
-        public ProjectConfig(bool skipHideFolder, List<string> fileMatchRules = null)
+        public ProjectConfig(bool skipHideFolder,bool onlyShowFileSpecify, List<string> fileMatchRules = null)
         {
             _skipHideFolder = skipHideFolder;
+            _displaySpecificFileTypes = onlyShowFileSpecify;
             if(fileMatchRules!=null)
             {
                 _fileMatchRules = fileMatchRules;
@@ -37,6 +39,16 @@ namespace System.Config
                 return _skipHideFolder;
             }
         }
+        
+        private bool _displaySpecificFileTypes = true;
+        public bool DisplaySpecificFileTypes
+        {
+            get
+            {
+                return _displaySpecificFileTypes;
+            }
+        }
+        
         
         private List<string> _fileMatchRules = new List<string>()
         {
@@ -85,7 +97,12 @@ namespace System.Config
                     "^[\\s]*CALL[\\s]ASK[\\w\\s@,]*\\((.+)\\)$",
                     "^[\\s]*CALL[\\s]+PRINT_ADD_EXP\\(.+,[\\s]*\"(.+)\\\"[\\s]*.+\\)$"
                 } 
-            },
+            },            
+            { "\\.xml$",new List<string>()
+                {
+                   "<[^/].*?>(.*?)</.*?>"
+                } 
+            }
         };
 
 
@@ -115,6 +132,10 @@ namespace System.Config
         {
             get
             {
+                if (_fileMatchRules.Count == 0)
+                {
+                    return "";
+                }
                 string regexRule = string.Join("|", _fileMatchRules);
                 return regexRule;
             }
@@ -169,11 +190,23 @@ namespace System.Config
             }
         }
 
-        public static event EventHandler ConfigUpdate;
+        private static string _projectPath = "";
+        /// <summary>
+        /// 当前工程路径
+        /// </summary>
+        public static string ProjectPath
+        {
+            get
+            {
+                return _projectPath;
+            }
+        }
+        
+        public static event EventHandler<string> ConfigUpdate;
 
         private static void InvokeConfigUpdateEvent()
         {
-            ConfigUpdate?.Invoke(null,null);
+            ConfigUpdate?.Invoke(null,_projectPath);
         }
         
         /// <summary>
@@ -223,12 +256,13 @@ namespace System.Config
         /// <summary>
         /// 加载或者初始化工程配置文件夹.AT
         /// </summary>
-        /// <param name="rootNode"></param>
+        /// <param name="rootNodePath">工程目录</param>
         public static void InitProject(string rootNodePath)
         {
+            _projectPath = rootNodePath;
             string configFolderPath = Path.Combine(rootNodePath, ".AT");
 
-            if (Directory.Exists(configFolderPath) && LoadProjectConfig(configFolderPath))
+            if (Directory.Exists(configFolderPath) && LoadConfigFile(configFolderPath))
             {
                 //确保配置文件夹为隐藏文件夹
                 FileAttributes attributes = File.GetAttributes(configFolderPath);
@@ -245,17 +279,10 @@ namespace System.Config
 
         }
         
-        
         /// <summary>
         /// 加载工程设置
         /// </summary>
         /// <returns>是否加载成功</returns>
-        private static bool LoadProjectConfig(string configFolderPath)
-        {
-            if(!LoadConfigFile(configFolderPath))return false ;
-            return true;
-        }
-        
         private static bool LoadConfigFile(string configFolderPath)
         {
             try

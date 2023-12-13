@@ -7,6 +7,10 @@ namespace UI
 {
     public class PullSlider : MonoBehaviour,IPointerDownHandler,IPointerUpHandler,IPointerEnterHandler,IPointerExitHandler
     {
+        public static event Action BeginDrag;
+        public static event Action EndDrag;
+        public static event Action<Vector2> IsDarging;
+        
         public enum PullType
         {
             Left,
@@ -63,12 +67,13 @@ namespace UI
         public void OnPointerDown(PointerEventData eventData)
         {
             _isDrag = true;
+            BeginDrag?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _isDrag = false;
-            GlobalSubscribeSys.Invoke("reset_cursor",this);
+            EndDrag?.Invoke();
         }
 
 

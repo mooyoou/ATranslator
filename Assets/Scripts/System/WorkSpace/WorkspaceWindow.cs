@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Explorer;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,7 @@ namespace System.WorkSpace
          
         private Dictionary<ExplorerNodeData,FileTab> openFiles = new Dictionary<ExplorerNodeData, FileTab>();
         private ExplorerNodeData curOpenFile;
+
         /// <summary>
         /// 
         /// </summary>
@@ -54,9 +56,12 @@ namespace System.WorkSpace
             curOpenFile = chooseExplorerNodeData;
 
             if(!textWindowCtrl.gameObject.activeSelf)textWindowCtrl.gameObject.SetActive(true);
+            
             textWindowCtrl.OpenFile(curOpenFile);
         }
 
+
+        
         public IEnumerator TapLateScrollToTarget(RectTransform rectTransform)
         {
             yield return new WaitForEndOfFrame();
@@ -70,7 +75,7 @@ namespace System.WorkSpace
                 openFiles.Remove(chooseExplorerNodeData);
                 if (chooseExplorerNodeData == curOpenFile)
                 {
-                    //关闭正在打开状态的页签的处理
+                    //自动开启其他页签
                     if(openFiles.Count!=0)
                     {
                         var newFile = openFiles.Keys.ToArray()[0];
@@ -81,7 +86,7 @@ namespace System.WorkSpace
                     }
                     else
                     {
-                        textWindowCtrl.gameObject.SetActive(false);
+                        textWindowCtrl.CloseWin();
                         curOpenFile = null;
                     }
                 }

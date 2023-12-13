@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 using Unity.Mathematics;
 using UnityEngine;
 
+/// <summary>
+/// 可存在多行文本
+/// </summary>
 public class TextLineData
 {
     /// <summary>
@@ -27,8 +30,16 @@ public class TextLineData
     {
         get
         {
-            if (_matchPosList.Count > 0)
+            if (_matchPosList?.Count > 0)
             {
+                string fixText = _rawText;
+
+                for (int i = _matchPosList.Count-1; i >=0 ; i--)
+                {
+                    fixText = fixText.Insert(_matchPosList[i].BeginPos + _matchPosList[i].Length, $"</color>");
+                    fixText = fixText.Insert(_matchPosList[i].BeginPos, "<color=white>");
+                }
+                return fixText;
                 //TODO捕获文本突出处理
             }
             

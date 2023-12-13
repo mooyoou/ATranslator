@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/System/WorkSpace/Prefab/TextWindow/TextWindow.uss?fileID=7433441132597879392&amp;guid=2bfb48a30cf361648857182c9c19c51d&amp;type=3#TextWindow" />
+    <Style src="project://database/Assets/Scripts/System/WorkSpace/Prefab/TextWindow/TextLine/TextLine.uss?fileID=7433441132597879392&amp;guid=f654871f654e6204cbe13d0e4abbf3d0&amp;type=3#TextLine" />
+    <ui:ScrollView name="TextAreaContainer" mouse-wheel-scroll-size="200" class="TextAreaContainer" />
+</ui:UXML>

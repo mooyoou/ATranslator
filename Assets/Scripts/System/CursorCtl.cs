@@ -43,6 +43,7 @@ public class CursorCtl : MonoBehaviour
 
     private void RegisterEvents()
     {
+        //TODO 切换成静态事件
         GlobalSubscribeSys.Subscribe("set_cursor", (objects) =>
         {
             try
