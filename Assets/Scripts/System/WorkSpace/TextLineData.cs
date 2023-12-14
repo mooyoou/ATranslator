@@ -40,7 +40,7 @@ public class TextLineData
                     fixText = fixText.Insert(_matchPosList[i].BeginPos, "<color=white>");
                 }
                 return fixText;
-                //TODO捕获文本突出处理
+                //TODO文本重复捕获的case处理
             }
             
             return _rawText;

@@ -12,22 +12,30 @@ namespace System.Config
 {
     public class ProjectConfig
     {
-        public ProjectConfig(List<string> fileMatchRules = null)
+        public ProjectConfig()
         {
-            if(fileMatchRules!=null)
+        }
+
+        public ProjectConfig(ProjectConfig projectConfig)
+        {
+            _skipHideFolder = projectConfig._skipHideFolder;
+            _displaySpecificFileTypes = projectConfig._displaySpecificFileTypes;
+            _globalTextMatchRules = new List<string>(projectConfig._globalTextMatchRules);
+            _specialTextMatchRules = new Dictionary<string, List<string>>();
+            foreach (var kv in projectConfig._specialTextMatchRules)
             {
-                _fileMatchRules = fileMatchRules;
+                _specialTextMatchRules[kv.Key]=new List<string>(kv.Value);
             }
         }
         
         [JsonConstructor]
-        public ProjectConfig(bool skipHideFolder,bool onlyShowFileSpecify, List<string> fileMatchRules = null)
+        public ProjectConfig(bool skipHideFolder,bool onlyShowFileSpecify, Dictionary<string,List<string>> specialTextMatchRules = null)
         {
             _skipHideFolder = skipHideFolder;
             _displaySpecificFileTypes = onlyShowFileSpecify;
-            if(fileMatchRules!=null)
+            if(specialTextMatchRules!=null)
             {
-                _fileMatchRules = fileMatchRules;
+                _specialTextMatchRules = specialTextMatchRules;
             }
         }
 
@@ -38,6 +46,10 @@ namespace System.Config
             {
                 return _skipHideFolder;
             }
+            set
+            {
+                _skipHideFolder = value;
+            }
         }
         
         private bool _displaySpecificFileTypes = true;
@@ -47,30 +59,12 @@ namespace System.Config
             {
                 return _displaySpecificFileTypes;
             }
-        }
-        
-        
-        private List<string> _fileMatchRules = new List<string>()
-        {
-            "\\.txt$",
-            "\\.word$",
-            "\\.md$",
-            "\\.html$",
-            "\\.xml$",
-            "\\.json$",
-            "\\.csv$",
-            "\\.log$",
-            "\\.cfg$",
-            "\\.ini$"
-        };
-        public List<string> FileMatchRules
-        {
-            get
+            set
             {
-                return _fileMatchRules;
+                _displaySpecificFileTypes = value;
             }
         }
-
+        
         
         /// <summary>
         /// 全局适用的可翻译文本匹配规则
@@ -80,31 +74,41 @@ namespace System.Config
             ";(.+)",
             "//(.+)"
         };
-        
+        public List<string> GlobalTextMatchRules
+        {
+            get { return _globalTextMatchRules; }
+        }
+
         /// <summary>
         /// 特殊文件的专用可翻译文本匹配规则
         /// </summary>
         private Dictionary<string,List<string>> _specialTextMatchRules = new Dictionary<string,List<string>>()
         {
-            { "\\.ERB$",new List<string>()
-                {
-                    "^[\\s]*PRINT[^\\s]*[\\s]+(.+)$",
-                    "^[\\s]*DATA[^\\s]*[\\s]+(.+)$",
-                    "^[\\s]*LOCAL[S]?\\s?\\+?\\=\\s?(.+)$",
-                    "^[\\s]*CALL[\\s]PRINT[^@]*@(.+)$",
-                    "^[\\s]*CALL[\\s]KPRINT[\\w\\s,\"]+\\\"(.+)\\$",
-                    "^[\\s]*CALL[\\s]COLOR_PRINT[\\w\\s@(,]?\\((.+)\\)$",
-                    "^[\\s]*CALL[\\s]ASK[\\w\\s@,]*\\((.+)\\)$",
-                    "^[\\s]*CALL[\\s]+PRINT_ADD_EXP\\(.+,[\\s]*\"(.+)\\\"[\\s]*.+\\)$"
-                } 
-            },            
+            // { "\\.ERB$",new List<string>()
+            //     {
+            //         "^[\\s]*PRINT[^\\s]*[\\s]+(.+)$",
+            //         "^[\\s]*DATA[^\\s]*[\\s]+(.+)$",
+            //         "^[\\s]*LOCAL[S]?\\s?\\+?\\=\\s?(.+)$",
+            //         "^[\\s]*CALL[\\s]PRINT[^@]*@(.+)$",
+            //         "^[\\s]*CALL[\\s]KPRINT[\\w\\s,\"]+\\\"(.+)\\$",
+            //         "^[\\s]*CALL[\\s]COLOR_PRINT[\\w\\s@(,]?\\((.+)\\)$",
+            //         "^[\\s]*CALL[\\s]ASK[\\w\\s@,]*\\((.+)\\)$",
+            //         "^[\\s]*CALL[\\s]+PRINT_ADD_EXP\\(.+,[\\s]*\"(.+)\\\"[\\s]*.+\\)$"
+            //     } 
+            // },            
             { "\\.xml$",new List<string>()
                 {
                    "<[^/].*?>(.*?)</.*?>"
                 } 
             }
         };
-
+        public Dictionary<string, List<string>> SpecialTextMatchRules
+        {
+            get
+            {
+                return _specialTextMatchRules;
+            }
+        }
 
         /// <summary>
         /// 获取文本匹配规则
@@ -126,17 +130,30 @@ namespace System.Config
             }
             return regexRule;
         }
-        
+
+        public override bool Equals(Object obj)
+        {
+            if (obj == null || !GetType().Equals(obj.GetType())) { return false; }
+
+            bool result = true;
+            ProjectConfig p = (ProjectConfig) obj;
+            result &= p._skipHideFolder == _skipHideFolder;
+            result &= p._displaySpecificFileTypes == _displaySpecificFileTypes;
+            result &= p.SpecialTextMatchRules.SequenceEqual(SpecialTextMatchRules);
+            
+            return result;
+        }
+
         [JsonIgnore]
         public string FIleMatchRegex
         {
             get
             {
-                if (_fileMatchRules.Count == 0)
+                if (_specialTextMatchRules.Count == 0)
                 {
                     return "";
                 }
-                string regexRule = string.Join("|", _fileMatchRules);
+                string regexRule = string.Join("|", _specialTextMatchRules.Keys);
                 return regexRule;
             }
         }

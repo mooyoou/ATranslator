@@ -139,6 +139,7 @@ namespace System.WorkSpace
                                 if (group.Success)
                                 {
                                     matchPosList.Add(new TextLineData.MatchPos(group.Index - matchStartLineIndex,group.Length));
+                                    break;
                                 }
                             }
                         }

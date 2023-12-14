@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Config;
 using System.Linq;
 using TMPro;
 using UI.InfiniteListScrollRect.Runtime;
@@ -11,16 +12,12 @@ namespace UI.SettingForm
     public class MulListCtl : MonoBehaviour
     {
         [SerializeField] private TMP_InputField inputField;
-        [SerializeField] private Animation flushAnimation;
+        [SerializeField] private Animation flashAnimation;
         [SerializeField] private InfiniteListScrollRect.Runtime.InfiniteListScrollRect infiniteListScrollRect;
         [SerializeField] private Button delButton;
-        
-        [SerializeField] private SettingForm settingForm;
-        
-        
+        [SerializeField] private Button addButton;
         private Dictionary<string,MulUnitData> _ruleList = new Dictionary<string, MulUnitData>();
-
-        public List<string> RuleList
+        protected List<string> RuleList
         {
             get
             {
@@ -28,10 +25,31 @@ namespace UI.SettingForm
             }
         }
 
-        private string _curChooseRule;
+        protected string CurChooseRule;
 
+        private void OnEnable()
+        {
+            RegisterEvents();
+        }
 
-        public void InitRuleList(List<string> ruleList)
+        private void OnDisable()
+        {
+            UnRegisterEvents();
+        }
+
+        private void RegisterEvents()
+        {
+            delButton.onClick.AddListener(OnDelBtnClick);
+            addButton.onClick.AddListener(OnAddBtnClick);
+        } 
+        
+        private void UnRegisterEvents()
+        {
+            delButton.onClick.RemoveAllListeners();
+            addButton.onClick.RemoveAllListeners();
+        }         
+        
+        internal void InitRuleList(List<string> ruleList)
         {
             if (ruleList==null)
             {
@@ -48,7 +66,7 @@ namespace UI.SettingForm
         /// <summary>
         /// 增加按钮
         /// </summary>
-        public void OnAddBtnClick()
+        public virtual  void OnAddBtnClick()
         {
             if(!IsInputHasText())return;
             string newRule = inputField.text;
@@ -66,34 +84,33 @@ namespace UI.SettingForm
                 (infiniteListElement as MulListBtn)?.PlayTipAni();
             }
             inputField.text = null;
-            settingForm.SetSaveBtn(true);
         }
 
         /// <summary>
         /// 删除按钮
         /// </summary>
         /// <returns></returns>
-        public void OnDelBtnClick()
+        public virtual void OnDelBtnClick()
         {
-            if (_ruleList.TryGetValue(_curChooseRule, out MulUnitData mulUnitData))
+            if (_ruleList.TryGetValue(CurChooseRule, out MulUnitData mulUnitData))
             {
-                _ruleList.Remove(_curChooseRule);
+                _ruleList.Remove(CurChooseRule);
                 infiniteListScrollRect.RemoveData(mulUnitData);
                 delButton.interactable = false;
-                _curChooseRule = null;
+                CurChooseRule = null;
             }
-            settingForm.SetSaveBtn(true);
+
         }
 
         /// <summary>
         /// 列表选择
         /// </summary>
         /// <param name="ruleKey"></param>
-        public void OnMulBtnClick(string ruleKey)
+        public virtual void OnMulBtnClick(string ruleKey)
         {
-            if (_curChooseRule == ruleKey) return;
+            if (CurChooseRule == ruleKey) return;
             //取消原按钮
-            if ( !string.IsNullOrEmpty(_curChooseRule)&&_ruleList.TryGetValue(_curChooseRule, out MulUnitData curRuleData))
+            if ( !string.IsNullOrEmpty(CurChooseRule)&&_ruleList.TryGetValue(CurChooseRule, out MulUnitData curRuleData))
             {
                 curRuleData.IsChoose = false;
                 if (infiniteListScrollRect.GetDisplayElement(curRuleData, out InfiniteListElement infiniteListElement))
@@ -111,7 +128,7 @@ namespace UI.SettingForm
                 }
             }
 
-            _curChooseRule = ruleKey;
+            CurChooseRule = ruleKey;
             //删除按钮激活
             delButton.interactable = true;
         }
@@ -120,7 +137,7 @@ namespace UI.SettingForm
         {
             if (string.IsNullOrEmpty(inputField.text))
             {
-                flushAnimation.Play();
+                flashAnimation.Play();
                 return false;
             }
             else

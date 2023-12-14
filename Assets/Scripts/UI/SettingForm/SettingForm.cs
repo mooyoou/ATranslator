@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Config;
 using System.Linq;
 using TMPro;
@@ -8,7 +10,7 @@ namespace UI.SettingForm
 {
    public class SettingForm : MonoBehaviour
    {
-      [SerializeField] private MulListCtl ruleList;
+      [SerializeField] private FileMulListCtl fileRuleList;
       [SerializeField] private Toggle skipHideFolderBtn;
       [SerializeField] private Toggle displaySpecificFileTypesBtn;
       [SerializeField] private Button saveBtn;
@@ -16,14 +18,13 @@ namespace UI.SettingForm
       [SerializeField] private Button cancelBtn;
 
       private ProjectConfig _projectConfig;
-
+      
       public void OnSaveBtnClick()
       {
-         var loadRules = ruleList.RuleList;
-         var skipHideFolder = skipHideFolderBtn.isOn;
-         var onlyShowFileSpecify = displaySpecificFileTypesBtn.isOn;
-         _projectConfig = new ProjectConfig(skipHideFolder,onlyShowFileSpecify, loadRules );
-         ConfigSystem.ProjectConfig = _projectConfig;
+         if (_projectConfig != ConfigSystem.ProjectConfig)
+         {
+            ConfigSystem.ProjectConfig = _projectConfig;
+         }
          gameObject.SetActive(false);
       }
 
@@ -32,13 +33,66 @@ namespace UI.SettingForm
          gameObject.SetActive(false);
       }
 
+      public void OnSkipHideFolderBtnClick(bool value)
+      {
+         ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+         newProjectConfig.SkipHideFolder = value;
+         SettingEvent.SettingPanelChange(newProjectConfig);
+      }
+      
+      public void OnDisplaySpecificFileTypesBtnClick(bool value)
+      {
+         ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+         newProjectConfig.DisplaySpecificFileTypes = value;
+         SettingEvent.SettingPanelChange(newProjectConfig);
+      }
+      
+      
       private void OnEnable()
       {
          LoadSettings();
          SetSaveBtn(false);
+         RegisterEvent();
       }
 
-      public void SetSaveBtn(bool active)
+      private void OnDisable()
+      {
+         UnRegisterEvent();
+      }
+
+      private void RegisterEvent()
+      {
+         SettingEvent.SettingPanelChange += (configSystem) => { SettingChangeCheck(configSystem);} ;
+         cancelBtn.onClick.AddListener(OnCancleBtnClick);
+         saveBtn.onClick.AddListener(OnSaveBtnClick);
+         skipHideFolderBtn.onValueChanged.AddListener(OnSkipHideFolderBtnClick);
+         displaySpecificFileTypesBtn.onValueChanged.AddListener(OnDisplaySpecificFileTypesBtnClick);
+      }
+      
+      private void UnRegisterEvent()
+      {
+         SettingEvent.SettingPanelChange = null ;
+         cancelBtn.onClick.RemoveAllListeners();
+         saveBtn.onClick.RemoveAllListeners();
+         skipHideFolderBtn.onValueChanged.RemoveAllListeners();
+         displaySpecificFileTypesBtn.onValueChanged.RemoveAllListeners();
+      }
+
+
+      private void SettingChangeCheck(ProjectConfig newConfig)
+      {
+         _projectConfig = newConfig;
+         if (newConfig.Equals(ConfigSystem.ProjectConfig))
+         {
+            SetSaveBtn(false);
+         }
+         else
+         {
+            SetSaveBtn(true);
+         }
+      }
+      
+      private void SetSaveBtn(bool active)
       {
          saveBtn.interactable = active;
          saveBtnText.color = active ? new Color(0.8f, 0.8f, 0.8f, 1) : new Color(0.2f, 0.2f, 0.2f, 1);
@@ -49,10 +103,12 @@ namespace UI.SettingForm
          _projectConfig = ConfigSystem.ProjectConfig;
          skipHideFolderBtn.isOn = _projectConfig.SkipHideFolder;
          displaySpecificFileTypesBtn.isOn = _projectConfig.DisplaySpecificFileTypes;
-         ruleList.InitRuleList(_projectConfig.FileMatchRules.ToList());
+         List<string> fileMatchRules = _projectConfig.SpecialTextMatchRules.Keys.ToList();
+         fileRuleList.InitRuleList(fileMatchRules);
+         if(_projectConfig.SpecialTextMatchRules.Count>0)
+         {
+            fileRuleList.OnMulBtnClick(fileMatchRules[0]);
+         }
       }
-
-
-      
    }
 }
