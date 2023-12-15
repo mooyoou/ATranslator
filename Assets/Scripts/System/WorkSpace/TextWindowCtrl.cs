@@ -83,8 +83,7 @@ namespace System.WorkSpace
             List<TextLineData> textLineDatas = new List<TextLineData>();
             string fileContent = File.ReadAllText(explorerNodeData.FullPath);
             string regexPattern = ConfigSystem.ProjectConfig.GetTextMatchRegex(explorerNodeData.FileName);
-            RegexOptions regexOptions = RegexOptions.Multiline | RegexOptions.Singleline;
-            MatchCollection matches = Regex.Matches(fileContent, regexPattern, regexOptions );
+            MatchCollection matches = Regex.Matches(fileContent, regexPattern, ConfigSystem.RegexOptions );
             int curMatchIndex = 0;
             int matchShowNumber = 0;
             int preLength = 0;

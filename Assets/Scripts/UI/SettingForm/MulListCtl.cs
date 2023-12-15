@@ -35,6 +35,7 @@ namespace UI.SettingForm
         private void OnDisable()
         {
             UnRegisterEvents();
+            CurChooseRule = null;
         }
 
         private void RegisterEvents()
@@ -61,6 +62,9 @@ namespace UI.SettingForm
                 _ruleList.Add(rule,new MulUnitData(rule,this));
             }
             infiniteListScrollRect.ResetData(_ruleList.Values.ToList());
+            delButton.interactable = false;
+            CurChooseRule = null;
+            inputField.text = null;
         }
         
         /// <summary>
@@ -108,7 +112,11 @@ namespace UI.SettingForm
         /// <param name="ruleKey"></param>
         public virtual void OnMulBtnClick(string ruleKey)
         {
-            if (CurChooseRule == ruleKey) return;
+            MulUnitData ruleData;
+            if (CurChooseRule == ruleKey)
+            {
+                return;
+            }
             //取消原按钮
             if ( !string.IsNullOrEmpty(CurChooseRule)&&_ruleList.TryGetValue(CurChooseRule, out MulUnitData curRuleData))
             {
@@ -119,7 +127,7 @@ namespace UI.SettingForm
                 }
             }
             //选中新按钮
-            if (_ruleList.TryGetValue(ruleKey,out MulUnitData ruleData))
+            if (_ruleList.TryGetValue(ruleKey,out ruleData))
             {
                 ruleData.IsChoose = true;
                 if (infiniteListScrollRect.GetDisplayElement(ruleData, out InfiniteListElement newInfiniteListElement))

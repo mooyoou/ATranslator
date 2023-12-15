@@ -11,6 +11,7 @@ namespace UI.SettingForm
    public class SettingForm : MonoBehaviour
    {
       [SerializeField] private FileMulListCtl fileRuleList;
+      [SerializeField] private GlobalRuleMulListCtl globalRuleMulListCtl;
       [SerializeField] private Toggle skipHideFolderBtn;
       [SerializeField] private Toggle displaySpecificFileTypesBtn;
       [SerializeField] private Button saveBtn;
@@ -21,28 +22,28 @@ namespace UI.SettingForm
       
       public void OnSaveBtnClick()
       {
-         if (_projectConfig != ConfigSystem.ProjectConfig)
+         if (!_projectConfig.Equals(ConfigSystem.ProjectConfig))
          {
-            ConfigSystem.ProjectConfig = _projectConfig;
+            ConfigSystem.UpdateProjectConfig(_projectConfig);
          }
          gameObject.SetActive(false);
       }
 
-      public void OnCancleBtnClick()
+      public void OnCancelBtnClick()
       {
          gameObject.SetActive(false);
       }
 
       public void OnSkipHideFolderBtnClick(bool value)
       {
-         ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+         ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
          newProjectConfig.SkipHideFolder = value;
          SettingEvent.SettingPanelChange(newProjectConfig);
       }
       
       public void OnDisplaySpecificFileTypesBtnClick(bool value)
       {
-         ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+         ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
          newProjectConfig.DisplaySpecificFileTypes = value;
          SettingEvent.SettingPanelChange(newProjectConfig);
       }
@@ -50,9 +51,10 @@ namespace UI.SettingForm
       
       private void OnEnable()
       {
+         RegisterEvent();
          LoadSettings();
          SetSaveBtn(false);
-         RegisterEvent();
+
       }
 
       private void OnDisable()
@@ -63,7 +65,8 @@ namespace UI.SettingForm
       private void RegisterEvent()
       {
          SettingEvent.SettingPanelChange += (configSystem) => { SettingChangeCheck(configSystem);} ;
-         cancelBtn.onClick.AddListener(OnCancleBtnClick);
+         SettingEvent.GetPannelSetting += () => { return _projectConfig;}; 
+         cancelBtn.onClick.AddListener(OnCancelBtnClick);
          saveBtn.onClick.AddListener(OnSaveBtnClick);
          skipHideFolderBtn.onValueChanged.AddListener(OnSkipHideFolderBtnClick);
          displaySpecificFileTypesBtn.onValueChanged.AddListener(OnDisplaySpecificFileTypesBtnClick);
@@ -72,6 +75,7 @@ namespace UI.SettingForm
       private void UnRegisterEvent()
       {
          SettingEvent.SettingPanelChange = null ;
+         SettingEvent.GetPannelSetting = null;
          cancelBtn.onClick.RemoveAllListeners();
          saveBtn.onClick.RemoveAllListeners();
          skipHideFolderBtn.onValueChanged.RemoveAllListeners();
@@ -100,11 +104,13 @@ namespace UI.SettingForm
       
       private void LoadSettings()
       {
-         _projectConfig = ConfigSystem.ProjectConfig;
+         _projectConfig = new ProjectConfig(ConfigSystem.ProjectConfig) ;
          skipHideFolderBtn.isOn = _projectConfig.SkipHideFolder;
          displaySpecificFileTypesBtn.isOn = _projectConfig.DisplaySpecificFileTypes;
          List<string> fileMatchRules = _projectConfig.SpecialTextMatchRules.Keys.ToList();
          fileRuleList.InitRuleList(fileMatchRules);
+         List<string> globalMatchRules = _projectConfig.GlobalTextMatchRules;
+         globalRuleMulListCtl.InitRuleList(globalMatchRules);
          if(_projectConfig.SpecialTextMatchRules.Count>0)
          {
             fileRuleList.OnMulBtnClick(fileMatchRules[0]);

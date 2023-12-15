@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UI.InfiniteListScrollRect.Runtime;
 using UnityEngine;
@@ -7,8 +8,8 @@ namespace UI.SettingForm
 {
     public class MulListBtn : InfiniteListElement 
     {
-        [SerializeField]private TMP_Text btnText;
-        [SerializeField]private Button button;
+        [SerializeField ]private TMP_InputField btnText;
+        [SerializeField] private RawImage BackColor;
         [SerializeField] private Animation flashAni;
         [SerializeField] private AnimationClip singleFlashAniClip;
         [SerializeField] private AnimationClip doubleFlashAniClip;
@@ -20,6 +21,16 @@ namespace UI.SettingForm
         {
             flashAni.AddClip(singleFlashAniClip,"SingleFlashAniClip");
             flashAni.AddClip(doubleFlashAniClip,"DoubleFlashAniClip");
+        }
+
+        private void OnEnable()
+        {
+            btnText.onSelect.AddListener(OnBtnClick);
+        }
+
+        private void OnDisable()
+        {
+            btnText.onSelect.RemoveAllListeners();
         }
 
         public override void OnUpdateData(InfiniteListScrollRect.Runtime.InfiniteListScrollRect scrollRect, int index, InfiniteListData data)
@@ -41,12 +52,10 @@ namespace UI.SettingForm
         public void SetBtnState(bool isChoose)
         {
             _mulUnitData.IsChoose = isChoose;
-            var buttonColors = button.colors;
-            buttonColors.normalColor = isChoose ? new Color(1f, 1f, 1f, 0.1f): new Color(1f, 1f, 1f, 0);
-            button.colors = buttonColors;
+            BackColor.enabled = isChoose;
         }
 
-        public void OnBtnClick()
+        public void OnBtnClick(string rule)
         {
             SetBtnState(true);
             _mulListCtl.OnMulBtnClick(_mulUnitData.RuleName);

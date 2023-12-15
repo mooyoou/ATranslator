@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -77,6 +78,10 @@ namespace System.Config
         public List<string> GlobalTextMatchRules
         {
             get { return _globalTextMatchRules; }
+            set
+            {
+                _globalTextMatchRules = value.Distinct().ToList();
+            }
         }
 
         /// <summary>
@@ -108,6 +113,13 @@ namespace System.Config
             {
                 return _specialTextMatchRules;
             }
+            set
+            {
+                foreach (var kv in value)
+                {
+                    value[kv.Key] = kv.Value.Distinct().ToList();
+                }
+            }
         }
 
         /// <summary>
@@ -118,7 +130,6 @@ namespace System.Config
         public string GetTextMatchRegex(string fileName= "")
         {
             string regexRule = string.Join("|", _globalTextMatchRules);
-            
             foreach (var rule in _specialTextMatchRules)
             {
                 Regex regex = new Regex(rule.Key);
@@ -164,17 +175,16 @@ namespace System.Config
     public static class ConfigSystem
     {
         private static ProjectConfig _projectConfig = new ProjectConfig();
+
+        /// <summary>
+        /// 默认的匹配选项
+        /// </summary>
+        public static RegexOptions RegexOptions = RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
         public static ProjectConfig ProjectConfig
         {
             get
             {
                 return _projectConfig;
-            }
-            set
-            {
-                _projectConfig = value;
-                InitConfigFile(_projectConfig);
-                InvokeConfigUpdateEvent();
             }
         }
         public static string CurConfigFolderPath
@@ -295,6 +305,17 @@ namespace System.Config
 
 
         }
+
+        /// <summary>
+        /// 更新工程设置
+        /// </summary>
+        /// <param name="projectConfig"></param>
+        public static void UpdateProjectConfig(ProjectConfig projectConfig)
+        {
+            _projectConfig = projectConfig;
+            InitConfigFile(_projectConfig);
+            InvokeConfigUpdateEvent();
+        }
         
         /// <summary>
         /// 加载工程设置
@@ -308,7 +329,7 @@ namespace System.Config
 
                 string configfile = File.ReadAllText(configfilePath);
                 _curConfigFolderPath = configFolderPath;
-                ProjectConfig = JsonConvert.DeserializeObject<ProjectConfig>(configfile);
+                UpdateProjectConfig(JsonConvert.DeserializeObject<ProjectConfig>(configfile));
             }
             catch (Exception e)
             {
@@ -324,7 +345,7 @@ namespace System.Config
             DirectoryInfo folderInfo = new DirectoryInfo(configFolderPath);
             folderInfo.Attributes |= FileAttributes.Hidden;
             _curConfigFolderPath = configFolderPath;
-            ProjectConfig = new ProjectConfig();
+            UpdateProjectConfig(new ProjectConfig());
         }
 
         /// <summary>

@@ -59,7 +59,10 @@ public class ExplorerCtrl : MonoBehaviour
             lastOpenHistory = ConfigSystem.OpenProjectHistories[0];
         }
         string projectPath = Misc.OpenFolderBrowserDialog(lastOpenHistory);
-        ConfigSystem.InitProject(projectPath);//读取 或 建立 配置文件
+        if (!string.IsNullOrEmpty(projectPath))
+        {
+            ConfigSystem.InitProject(projectPath);
+        } //读取 或 建立 配置文件
     }
 
     //配置更新事件

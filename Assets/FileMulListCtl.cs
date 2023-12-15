@@ -15,7 +15,7 @@ namespace UI.SettingForm
         public override void OnAddBtnClick()
         {
             base.OnAddBtnClick();
-            ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+            ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
             foreach (string rule in RuleList)
             {
                 if(!newProjectConfig.SpecialTextMatchRules.ContainsKey(rule))
@@ -32,7 +32,7 @@ namespace UI.SettingForm
         {
             base.OnDelBtnClick();
             
-            ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+            ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
 
             List<string> configFileRules = newProjectConfig.SpecialTextMatchRules.Keys.ToList();
             
@@ -43,6 +43,7 @@ namespace UI.SettingForm
                     newProjectConfig.SpecialTextMatchRules.Remove(rule);
                 }
             }
+            _textMulListCtl.InitRuleList(new List<string>());
             SettingEvent.SettingPanelChange(newProjectConfig);
         }
 

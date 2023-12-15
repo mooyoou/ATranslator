@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using TMPro;
 using UI.InfiniteListScrollRect.Runtime;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,16 +20,10 @@ namespace UI.SettingForm
         {
             base.OnAddBtnClick();
             if(string.IsNullOrEmpty(_curFileRule))return;
-            ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+            ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
             if (newProjectConfig.SpecialTextMatchRules.TryGetValue(_curFileRule, out List<string> configTextRule))
             {
-                foreach (string rule in RuleList)
-                {
-                    if(!configTextRule.Contains(rule))
-                    {
-                        newProjectConfig.SpecialTextMatchRules[_curFileRule].Add(rule);
-                    }
-                }
+                newProjectConfig.SpecialTextMatchRules[_curFileRule] = new List<string>(RuleList);
             }
             SettingEvent.SettingPanelChange(newProjectConfig);
         }
@@ -38,17 +33,10 @@ namespace UI.SettingForm
         {
             base.OnDelBtnClick();
             if(string.IsNullOrEmpty(_curFileRule))return;
-            ProjectConfig newProjectConfig = new ProjectConfig(ConfigSystem.ProjectConfig);
+            ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
             if (newProjectConfig.SpecialTextMatchRules.TryGetValue(_curFileRule, out List<string> configTextRule))
             {
-                for (int i = configTextRule.Count-1; i >=0 ; i--)
-                {
-                    if(!RuleList.Contains(configTextRule[i]))
-                    {
-                        int delIndex = newProjectConfig.SpecialTextMatchRules[_curFileRule].IndexOf(configTextRule[i]);
-                        newProjectConfig.SpecialTextMatchRules[_curFileRule].RemoveAt(delIndex);
-                    }
-                }
+                newProjectConfig.SpecialTextMatchRules[_curFileRule] = new List<string>(RuleList);
             }
             SettingEvent.SettingPanelChange(newProjectConfig);
         }
@@ -64,7 +52,12 @@ namespace UI.SettingForm
         /// <param name="fileRule"></param>
         public void ShowTextRulesOfFile(string fileRule)
         {
-            if (ConfigSystem.ProjectConfig.SpecialTextMatchRules.TryGetValue(fileRule, out List<string> textRules))
+            if (_curFileRule == fileRule)
+            {
+                return;
+            }
+            ProjectConfig newProjectConfig = SettingEvent.GetPannelSetting();
+            if (newProjectConfig.SpecialTextMatchRules.TryGetValue(fileRule, out List<string> textRules))
             {
                 InitRuleList(textRules);
                 _curFileRule = fileRule;
