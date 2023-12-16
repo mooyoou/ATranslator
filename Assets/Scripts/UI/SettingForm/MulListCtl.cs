@@ -16,12 +16,13 @@ namespace UI.SettingForm
         [SerializeField] private InfiniteListScrollRect.Runtime.InfiniteListScrollRect infiniteListScrollRect;
         [SerializeField] private Button delButton;
         [SerializeField] private Button addButton;
-        private Dictionary<string,MulUnitData> _ruleList = new Dictionary<string, MulUnitData>();
+        private List<MulUnitData> _ruleList = new List<MulUnitData>();
         protected List<string> RuleList
         {
             get
             {
-                return _ruleList.Keys.ToList();
+                List<string> keys = _ruleList.Select(data => data.RuleName).ToList();
+                return keys;
             }
         }
 
@@ -56,12 +57,13 @@ namespace UI.SettingForm
             {
                 return;
             }
-            _ruleList = new Dictionary<string, MulUnitData>();
+
+            _ruleList = new List<MulUnitData>();
             foreach (var rule in ruleList)
             {
-                _ruleList.Add(rule,new MulUnitData(rule,this));
+                _ruleList.Add(new MulUnitData(rule,this));
             }
-            infiniteListScrollRect.ResetData(_ruleList.Values.ToList());
+            infiniteListScrollRect.ResetData(_ruleList);
             delButton.interactable = false;
             CurChooseRule = null;
             inputField.text = null;
@@ -74,7 +76,10 @@ namespace UI.SettingForm
         {
             if(!IsInputHasText())return;
             string newRule = inputField.text;
-            if (_ruleList.TryGetValue(newRule,out MulUnitData ruleData))
+            
+            MulUnitData ruleData = _ruleList.FirstOrDefault(data => data.RuleName == newRule);
+
+            if (ruleData!=null)
             {
                 infiniteListScrollRect.JumpToElement(ruleData,out InfiniteListElement infiniteListElement);
                 (infiniteListElement as MulListBtn)?.PlayErrorAni();
@@ -82,7 +87,7 @@ namespace UI.SettingForm
             else
             {
                 MulUnitData newRuleData = new MulUnitData(newRule, this);
-                _ruleList.Add(newRule,newRuleData);
+                _ruleList.Add(newRuleData);
                 infiniteListScrollRect.AddData(newRuleData);
                 infiniteListScrollRect.JumpToElement(newRuleData,out InfiniteListElement infiniteListElement);
                 (infiniteListElement as MulListBtn)?.PlayTipAni();
@@ -96,10 +101,11 @@ namespace UI.SettingForm
         /// <returns></returns>
         public virtual void OnDelBtnClick()
         {
-            if (_ruleList.TryGetValue(CurChooseRule, out MulUnitData mulUnitData))
+            MulUnitData ruleData = _ruleList.FirstOrDefault(data => data.RuleName == CurChooseRule);
+            if (ruleData!=null)
             {
-                _ruleList.Remove(CurChooseRule);
-                infiniteListScrollRect.RemoveData(mulUnitData);
+                _ruleList.Remove(ruleData);
+                infiniteListScrollRect.RemoveData(ruleData);
                 delButton.interactable = false;
                 CurChooseRule = null;
             }
@@ -117,17 +123,20 @@ namespace UI.SettingForm
             {
                 return;
             }
+            
+            ruleData = _ruleList.FirstOrDefault(data => data.RuleName == CurChooseRule);
             //取消原按钮
-            if ( !string.IsNullOrEmpty(CurChooseRule)&&_ruleList.TryGetValue(CurChooseRule, out MulUnitData curRuleData))
+            if ( !string.IsNullOrEmpty(CurChooseRule)&&ruleData!=null)
             {
-                curRuleData.IsChoose = false;
-                if (infiniteListScrollRect.GetDisplayElement(curRuleData, out InfiniteListElement infiniteListElement))
+                ruleData.IsChoose = false;
+                if (infiniteListScrollRect.GetDisplayElement(ruleData, out InfiniteListElement infiniteListElement))
                 {
                     (infiniteListElement as MulListBtn)?.RefreshBtn();
                 }
             }
             //选中新按钮
-            if (_ruleList.TryGetValue(ruleKey,out ruleData))
+            ruleData  = _ruleList.FirstOrDefault(data => data.RuleName == ruleKey);
+            if (ruleData!=null)
             {
                 ruleData.IsChoose = true;
                 if (infiniteListScrollRect.GetDisplayElement(ruleData, out InfiniteListElement newInfiniteListElement))

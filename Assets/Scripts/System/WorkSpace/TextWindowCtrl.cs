@@ -17,6 +17,8 @@ namespace System.WorkSpace
     {
         [SerializeField] private UIDocument textArea;
 
+        public bool InitFileDataTest;
+        
         private ScrollView _textAreaScrollView;
 
         private Dictionary<ExplorerNodeData, List<TextLineData>> _projectFileDates = new Dictionary<ExplorerNodeData, List<TextLineData>>();
@@ -57,7 +59,7 @@ namespace System.WorkSpace
             Task initFileTask = Task.Run(() =>
             {
                 
-                if (_projectFileDates.ContainsKey(explorerNodeData))
+                if (_projectFileDates.ContainsKey(explorerNodeData) && !InitFileDataTest )
                 {
                     fileDate = _projectFileDates[explorerNodeData];
                 }
@@ -83,7 +85,7 @@ namespace System.WorkSpace
             List<TextLineData> textLineDatas = new List<TextLineData>();
             string fileContent = File.ReadAllText(explorerNodeData.FullPath);
             string regexPattern = ConfigSystem.ProjectConfig.GetTextMatchRegex(explorerNodeData.FileName);
-            MatchCollection matches = Regex.Matches(fileContent, regexPattern, ConfigSystem.RegexOptions );
+            MatchCollection matches = Regex.Matches(fileContent, regexPattern, ConfigSystem.ProjectRegexOptions );
             int curMatchIndex = 0;
             int matchShowNumber = 0;
             int preLength = 0;
@@ -130,7 +132,7 @@ namespace System.WorkSpace
                     int matchStartLineIndex = curLineStartIndex;
                     while (matchStartIndex <= curLineEndIndex)
                     {
-                        if (matches[curMatchIndex].Groups.Count != 0)
+                        if (matches[curMatchIndex].Groups.Count > 1)
                         {
                             for (int groupIndex = 1; groupIndex <  matches[curMatchIndex].Groups.Count; groupIndex++)
                             {
