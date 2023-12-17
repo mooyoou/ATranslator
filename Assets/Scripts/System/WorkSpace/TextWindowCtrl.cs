@@ -85,7 +85,16 @@ namespace System.WorkSpace
             List<TextLineData> textLineDatas = new List<TextLineData>();
             string fileContent = File.ReadAllText(explorerNodeData.FullPath);
             string regexPattern = ConfigSystem.ProjectConfig.GetTextMatchRegex(explorerNodeData.FileName);
-            MatchCollection matches = Regex.Matches(fileContent, regexPattern, ConfigSystem.ProjectRegexOptions );
+            MatchCollection matches = null;
+            try
+            {
+                matches = Regex.Matches(fileContent, regexPattern,ConfigSystem.ProjectRegexOptions);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Error message: {e.Message}\nStack trace: {e.StackTrace}");
+            }
+
             int curMatchIndex = 0;
             int matchShowNumber = 0;
             int preLength = 0;
@@ -94,7 +103,7 @@ namespace System.WorkSpace
             string[] lines = fileContent.Split(splitChar); // 按行分割文本
             for (int i = 0; i < lines.Length; i++)
             {
-                if (curMatchIndex > matches.Count - 1)
+                if (matches==null || curMatchIndex > matches.Count - 1)
                 {
                     //已处理所有匹配，剩余行数直接合并
                     for(int index = i; index < lines.Length; index++)
@@ -137,10 +146,12 @@ namespace System.WorkSpace
                             for (int groupIndex = 1; groupIndex <  matches[curMatchIndex].Groups.Count; groupIndex++)
                             {
                                 Group group = matches[curMatchIndex].Groups[groupIndex];
-                                if (group.Success)
+                                bool isIgnoreGroup = group.Name == ConfigSystem.IgnoreGroupName ||
+                                                     Regex.IsMatch(group.Name,
+                                                         @$"^{ConfigSystem.IgnoreGroupName}_\d+$");
+                                if (group.Success && !isIgnoreGroup)
                                 {
                                     matchPosList.Add(new TextLineData.MatchPos(group.Index - matchStartLineIndex,group.Length));
-                                    break;
                                 }
                             }
                         }

@@ -127,21 +127,122 @@ namespace System.Config
         /// </summary>
         /// <param name="fileName">要匹配的文件名（可支持单文件名或者全路径模式切换）</param>
         /// <returns></returns>
-        public string GetTextMatchRegex(string fileName= "")
+        public string GetTextMatchRegex(string fileName = "")
         {
-            string regexRule = string.Join("|", _globalTextMatchRules);
-            foreach (var rule in _specialTextMatchRules)
+            int captureGroupCount = 0;
+            string pattern = "";
+
+            //处理特殊规则
+            foreach (var fileRule in _specialTextMatchRules)
             {
-                Regex regex = new Regex(rule.Key);
-                Match match = regex.Match(fileName);
-                if (match.Success && rule.Value.Count>0)
+                Regex regex = new Regex(fileRule.Key);
+                Match fileMatch = regex.Match(fileName);
+                if (fileMatch.Success && fileRule.Value.Count > 0)
                 {
-                    regexRule += $"|{string.Join("|", rule.Value)}";
+                    foreach (string textRule in fileRule.Value)
+                    {
+                        pattern = CombinePattern(pattern, textRule);
+                    }
                 }
             }
-            return regexRule;
+
+            //通用规则位于最低优先级
+            foreach (string rule in _globalTextMatchRules)
+            {
+                pattern = CombinePattern(pattern, rule);
+
+            }
+
+            return pattern;
         }
 
+        /// <summary>
+        /// 将两个表达式结合
+        /// </summary>
+        /// <param name="oldPattern"></param>
+        /// <param name="newPattern"></param>
+        /// <returns></returns>
+        private string CombinePattern(string oldPattern, string newPattern)
+        {
+            //if (string.IsNullOrEmpty(oldPattern)) return newPattern;
+            Regex oldRegex;
+            Regex newRegex;
+            try
+            {
+                oldRegex = new Regex(oldPattern);
+            }
+            catch (Exception e)
+            {
+                //原始表达式不规范返回空字符
+                Debug.LogWarning($"Error message: {e.Message}\nStack trace: {e.StackTrace}");
+                return "";
+            }
+            
+            int nonNamedCaptureGroupsCount = 0;
+            foreach (string groupName in oldRegex.GetGroupNames())
+            {
+                if (int.TryParse(groupName, out _))
+                {
+                    nonNamedCaptureGroupsCount++;
+                }
+            }
+            int oldCaptureGroupsCount = nonNamedCaptureGroupsCount - 1;
+
+            try
+            {
+                newRegex = new Regex(newPattern);
+            }
+            catch (Exception e)
+            {
+                //新表达式不规范返回旧表达式
+                Debug.LogWarning($"Error message: {e.Message}\nStack trace: {e.StackTrace}");
+                return oldPattern;
+            }
+            
+            int newCaptureGroupsCount = newRegex.GetGroupNumbers().Length - 1;
+            
+            Regex referenceRegex = new Regex(@"(?<!\\)(?:\\\\)*\\(\d+)");
+            string adjustedNewPattern = referenceRegex.Replace(newPattern, match =>
+            {
+                int groupNumber;
+                if (int.TryParse(match.Groups[1].Value, out groupNumber))
+                {
+                    // Check if the group number is named
+                    string groupName = newRegex.GroupNameFromNumber(groupNumber);
+                    if (!string.IsNullOrEmpty(groupName)&&!int.TryParse(groupName,out _))
+                    {
+                        return @$"\k<{groupName}>";
+                    }
+                    
+                    // Check if the index out of group Range
+                    while (groupNumber > newCaptureGroupsCount )
+                    {
+                        return match.Value;
+                    }
+                    
+                    int adjustedGroupNumber = groupNumber + oldCaptureGroupsCount; // 偏移新模式的捕获组引用
+                    return $"\\{adjustedGroupNumber}";
+                }
+                return match.Value;
+            });
+            
+            string combineStr = string.IsNullOrEmpty(oldPattern)?adjustedNewPattern:$"{oldPattern}|{adjustedNewPattern}";
+            
+            try
+            {
+                //合并后检验
+                var combineRegex = new Regex(combineStr);
+            }            
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Error message: {e.Message}\nStack trace: {e.StackTrace}");
+                return oldPattern;
+            }
+            
+            
+            return combineStr; // 返回合并后的模式
+        }
+        
         public override bool Equals(Object obj)
         {
             if (obj == null || !GetType().Equals(obj.GetType())) { return false; }
@@ -179,7 +280,10 @@ namespace System.Config
         /// <summary>
         /// 默认的匹配选项
         /// </summary>
-        public static RegexOptions RegexOptions = RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        public static RegexOptions ProjectRegexOptions = RegexOptions.Multiline | RegexOptions.Singleline;
+
+        public const string IgnoreGroupName ="ignore";
+        
         public static ProjectConfig ProjectConfig
         {
             get

@@ -775,6 +775,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textArea: {fileID: 1872831811}
+  InitFileDataTest: 1
 --- !u!1 &161031910
 GameObject:
   m_ObjectHideFlags: 0
