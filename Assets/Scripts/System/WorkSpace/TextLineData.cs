@@ -21,7 +21,15 @@ public class TextLineData
     }
     private bool _isRawText;
     
-
+    public int LineNum
+    {
+        get
+        {
+            return _lineNum;
+        }
+    }
+    private int _lineNum;
+    
      /// <summary>
      /// 原始文本
      /// </summary>
@@ -121,8 +129,9 @@ public class TextLineData
     /// <param name="matchNum"></param>
     /// <param name="rawText"></param>
     /// <param name="translationText"></param>
-    public TextLineData(int matchNum,string rawText,List<MatchPos> matchPosList, string translationText = "")
+    public TextLineData(int lineNum, int matchNum,string rawText,List<MatchPos> matchPosList, string translationText = "")
     {
+        _lineNum = lineNum;
         _isRawText = false;
         _matchNum = matchNum;
         _rawText = rawText;
@@ -135,8 +144,9 @@ public class TextLineData
     /// 设置原文行
     /// </summary>
     /// <param name="rawText"></param>
-    public TextLineData(string rawText)
+    public TextLineData(int lineNum,string rawText)
     {
+        _lineNum = lineNum;
         _isRawText = true;
         _rawText = rawText;
         _translationText = "";

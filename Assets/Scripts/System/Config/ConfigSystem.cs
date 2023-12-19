@@ -66,6 +66,15 @@ namespace System.Config
             }
         }
         
+        private string _splitChar = "\n";
+
+        public string SplitChar
+        {
+            get
+            {
+                return _splitChar;
+            }
+        }
         
         /// <summary>
         /// 全局适用的可翻译文本匹配规则

@@ -48,12 +48,17 @@ namespace System.WorkSpace
         private TextField _mRawInputField;
         private TextField _mTransInputField;
 
+
+        public TextLineData TextLineData
+        {
+            get { return _textLineData; }
+        }
+        private TextLineData _textLineData;
         
-        public TextLineData _textLineData; 
-        
+        //for uibuilder show
          public TextLine()
         {
-            var textLineData = new TextLineData(99999, "Default Raw Text", null, "Default Translation Text");
+            var textLineData = new TextLineData(1,99999, "Default Raw Text", null, "Default Translation Text");
             //var textLineData = new TextLineData("");
             Init(textLineData);
         } 
@@ -98,7 +103,11 @@ namespace System.WorkSpace
                 _mTransInputField.value = textLineData.TranslationText??"";
                 _mTransInputField.RegisterValueChangedCallback(evt =>
                 {
-                    if (_textLineData != null) _textLineData.TranslationText = evt.newValue;
+                    if (TextLineData != null)
+                    {
+                        TextLineData.TranslationText = evt.newValue;
+                        TextWindowEvent.TextChange(TextLineData);
+                    }
                 });
                 Add(_mTransInputField);
             }

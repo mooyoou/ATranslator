@@ -72,7 +72,8 @@ namespace System.WorkSpace
         {
             if (openFiles.TryGetValue(chooseExplorerNodeData, out FileTab oldFileTab))
             {
-                openFiles.Remove(chooseExplorerNodeData);
+                openFiles.Remove(chooseExplorerNodeData);//关闭页签
+                
                 if (chooseExplorerNodeData == curOpenFile)
                 {
                     //自动开启其他页签
@@ -86,7 +87,7 @@ namespace System.WorkSpace
                     }
                     else
                     {
-                        textWindowCtrl.CloseWin();
+                        textWindowCtrl.CloseWin(chooseExplorerNodeData);
                         curOpenFile = null;
                     }
                 }
